@@ -1,0 +1,27 @@
+{
+  "name": "qing-select",
+  "version": "0.0.1",
+  "description": "A sample ui component inherited from QingModule.",
+  "homepage": "http://mycolorway.github.io/qing-select",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mycolorway/qing-select.git"
+  },
+  "author": "farthinker <farthinker@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mycolorway/qing-select/issues"
+  },
+  "main": "dist/qing-select.js",
+  "scripts": {
+    "start": "gulp",
+    "test": "gulp test"
+  },
+  "dependencies": {
+    "jquery": "^3.1.0",
+    "qing-module": "~1.0.0"
+  },
+  "devDependencies": {
+    "qing-build": "^0.x"
+  }
+}
