@@ -3,34 +3,44 @@ expect = chai.expect
 
 describe 'QingSelect', ->
 
-  $el = null
-  qingSelect = null
-
-  before ->
-    $el = $('<div class="test-el"></div>').appendTo 'body'
-
-  after ->
-    $el.remove()
-    $el = null
+  select = null
+  multipleSelect = null
 
   beforeEach ->
-    sample = new QingSelect
-      el: '.test-el'
+    $select = $("""
+      <select id="select-one">
+        <optgroup label="Swedish Cars">
+          <option value="volvo" data-hint="car 1">Volvo</option>
+          <option value="saab" data-hint="car 2">Saab</option>
+        </optgroup>
+        <optgroup label="German Cars">
+          <option value="mercedes" data-hint="car 3">Mercedes</option>
+          <option value="audi" data-hint="car 4" selected>Audi</option>
+        </optgroup>
+      </select>
+    """).appendTo 'body'
+
+    $multipleSelect = $("""
+      <select id="select-two" multiple="true">
+        <option value="">select something</option>
+        <option value="0" data-key="George Washington" selected>George Washington</option>
+        <option value="1" data-key="John Adams">John Adams</option>
+        <option value="2" data-key="Thomas Jefferson">Thomas Jefferson</option>
+      </select>
+    """).appendTo 'body'
+
+    select = new QingSelect
+      el: $('#select-one')
+
+    multipleSelect = new QingSelect
+      el: $('#select-two')
 
   afterEach ->
-    qingSelect.destroy()
-    qingSelect = null
+    select?.destroy()
+    multipleSelect?.destroy()
+    select = null
+    multipleSelect = null
 
   it 'should inherit from QingModule', ->
-    expect(sample).to.be.instanceof QingModule
-    expect(sample).to.be.instanceof QingSelect
-
-  it 'should throw error when element not found', ->
-    spy = sinon.spy QingSelect
-    try
-      new spy
-        el: '.not-exists'
-    catch e
-
-    expect(spy.calledWithNew()).to.be.true
-    expect(spy.threw()).to.be.true
+    expect(select).to.be.instanceof QingModule
+    expect(select).to.be.instanceof QingSelect

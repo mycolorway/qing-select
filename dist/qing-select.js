@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-09-12
+ * Date: 2016-09-17
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -16,16 +16,836 @@
   }
 }(this, function ($,QingModule) {
 var define, module, exports;
-var b = require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"qing-select":[function(require,module,exports){
-var QingSelect,
+var b = require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var HtmlSelect,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
+
+HtmlSelect = (function(superClass) {
+  extend(HtmlSelect, superClass);
+
+  HtmlSelect.opts = {
+    el: null
+  };
+
+  function HtmlSelect(opts) {
+    HtmlSelect.__super__.constructor.apply(this, arguments);
+    $.extend(this.opts, HtmlSelect.opts, opts);
+    this.el = $(this.opts.el);
+  }
+
+  HtmlSelect.prototype.getOptions = function() {
+    var options;
+    options = [];
+    this.el.find('option').each((function(_this) {
+      return function(i, optionEl) {
+        var $option, data, value;
+        $option = $(optionEl);
+        if (!(value = $option.val())) {
+          return;
+        }
+        data = $option.data();
+        if ($option.is(':selected')) {
+          data.selected = true;
+        }
+        return options.push([$option.text(), value, data]);
+      };
+    })(this));
+    return options;
+  };
+
+  HtmlSelect.prototype.selectOption = function(option) {
+    if (!(this.el.find("option[value='" + option.value + "']").length > 0)) {
+      this.el.append(this._renderOption(option));
+    }
+    this.el.val(option.value);
+    return this;
+  };
+
+  HtmlSelect.prototype.unselectOption = function(option) {
+    var $option;
+    $option = this.el.find("option[value='" + option.value + "']");
+    $option.prop('selected', false);
+    return this;
+  };
+
+  HtmlSelect.prototype._renderOption = function(option) {
+    return $('<option>', {
+      text: option.name,
+      value: option.value,
+      data: option.data
+    });
+  };
+
+  HtmlSelect.prototype.getValue = function() {
+    return this.el.val();
+  };
+
+  HtmlSelect.prototype.setValue = function(value) {
+    this.el.val(value);
+    return this;
+  };
+
+  HtmlSelect.prototype.getBlankOption = function() {
+    var $blankOption;
+    $blankOption = this.el.find('option:not([value]), option[value=""]');
+    if ($blankOption.length > 0) {
+      return $blankOption;
+    } else {
+      return false;
+    }
+  };
+
+  return HtmlSelect;
+
+})(QingModule);
+
+module.exports = HtmlSelect;
+
+},{}],2:[function(require,module,exports){
+var DataProvider, Option,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+Option = require('./option.coffee');
+
+DataProvider = (function(superClass) {
+  extend(DataProvider, superClass);
+
+  DataProvider.opts = {
+    remote: false,
+    options: [],
+    totalOptionSize: null
+  };
+
+  function DataProvider(opts) {
+    var option;
+    DataProvider.__super__.constructor.apply(this, arguments);
+    $.extend(this.opts, DataProvider.opts, opts);
+    this.remote = this.opts.remote;
+    this.options = (function() {
+      var j, len, ref, results;
+      ref = this.opts.options;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        option = ref[j];
+        results.push(new Option(option));
+      }
+      return results;
+    }).call(this);
+    this.totalSize = this.opts.totalSize;
+  }
+
+  DataProvider.prototype._fetch = function(value, callback) {
+    var obj, onFetch;
+    if (!this.remote || this.trigger('beforeFetch') === false) {
+      return;
+    }
+    onFetch = (function(_this) {
+      return function(result) {
+        var option, options;
+        options = (function() {
+          var j, len, ref, results;
+          ref = result.options;
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            option = ref[j];
+            results.push(new Option(option));
+          }
+          return results;
+        })();
+        _this.trigger('fetch', [options, result.totalSize, value]);
+        return callback != null ? callback.call(_this, options, result.totalSize) : void 0;
+      };
+    })(this);
+    return $.ajax({
+      url: this.remote.url,
+      data: $.extend({}, this.remote.params, (
+        obj = {},
+        obj["" + this.remote.searchKey] = value,
+        obj
+      )),
+      dataType: 'json'
+    }).done(function(result) {
+      return onFetch(result);
+    });
+  };
+
+  DataProvider.prototype.filter = function(value, callback) {
+    var afterFilter, options;
+    afterFilter = (function(_this) {
+      return function(options, totalSize) {
+        options = options.filter(function(option, i) {
+          return !option.selected;
+        });
+        if (callback != null) {
+          callback.call(_this, options, totalSize);
+        }
+        return _this.trigger('filter', [options, totalSize, value]);
+      };
+    })(this);
+    if (this.remote) {
+      if (value) {
+        this._fetch(value, afterFilter);
+      } else {
+        afterFilter(this.options, this.totalSize);
+      }
+    } else {
+      options = [];
+      $.each(this.options, function(i, option) {
+        if (option.match(value)) {
+          return options.push(option);
+        }
+      });
+      afterFilter(options, options.length);
+    }
+    return null;
+  };
+
+  return DataProvider;
+
+})(QingModule);
+
+module.exports = DataProvider;
+
+},{"./option.coffee":3}],3:[function(require,module,exports){
+var Option,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+Option = (function(superClass) {
+  extend(Option, superClass);
+
+  function Option(option) {
+    this.name = option[0];
+    this.value = option[1].toString();
+    this.data = {};
+    if (option.length > 2 && $.isArray(option[2])) {
+      $.each(option[2], (function(_this) {
+        return function(key, value) {
+          key = key.replace(/^data-/, '').split('-');
+          $.each(key, function(i, part) {
+            if (i > 0) {
+              return key[i] = part.charAt(0).toUpperCase() + part.slice(1);
+            }
+          });
+          _this.data[key.join('')] = value;
+          return null;
+        };
+      })(this));
+    }
+    this.selected = this.data.selected || false;
+  }
+
+  Option.prototype.match = function(value) {
+    var e, error, filterKey, re;
+    try {
+      re = new RegExp("(^|\\s)" + value, "i");
+    } catch (error) {
+      e = error;
+      re = new RegExp("", "i");
+    }
+    filterKey = this.data.searchKey || this.name;
+    return re.test(filterKey);
+  };
+
+  return Option;
+
+})(QingModule);
+
+module.exports = Option;
+
+},{}],4:[function(require,module,exports){
+var MultipleResultBox,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+MultipleResultBox = (function(superClass) {
+  extend(MultipleResultBox, superClass);
+
+  MultipleResultBox.opts = {
+    wrapper: null,
+    placeholder: '',
+    selected: false
+  };
+
+  function MultipleResultBox(opts) {
+    MultipleResultBox.__super__.constructor.apply(this, arguments);
+    $.extend(this.opts, MultipleResultBox.opts, opts);
+    this.wrapper = $(this.opts.wrapper);
+    if (!(this.wrapper.length > 0)) {
+      return;
+    }
+    this.active = false;
+    this.disabled = false;
+    this.selected = [];
+    this._render();
+    this._bind();
+    if (this.opts.selected) {
+      this.addSelected(this.opts.selected);
+    }
+  }
+
+  MultipleResultBox.prototype._render = function() {
+    this.el = $("<div class=\"result-box\">\n  <a class=\"link-add\" href=\"javascript:;\" tabindex=\"0\">+</a>\n</div>").appendTo(this.wrapper);
+    return this.linkAdd = this.el.find('.link-add');
+  };
+
+  MultipleResultBox.prototype._bind = function() {
+    this.el.on('click', '.link-add', (function(_this) {
+      return function(e) {
+        if (_this.disabled) {
+          return;
+        }
+        return _this.trigger('addClick');
+      };
+    })(this));
+    this.el.on('click', '.selected-option', (function(_this) {
+      return function(e) {
+        var $option;
+        if (_this.disabled) {
+          return;
+        }
+        $option = $(e.currentTarget);
+        return _this.trigger('optionClick', [$option.data('option')]);
+      };
+    })(this));
+    return this.linkAdd.on('keydown', (function(_this) {
+      return function(e) {
+        var ref;
+        if (_this.disabled) {
+          return;
+        }
+        if ((ref = e.which) === 13 || ref === 38 || ref === 40) {
+          return _this.trigger('addClick');
+        }
+      };
+    })(this));
+  };
+
+  MultipleResultBox.prototype.addSelected = function(option) {
+    var j, len, opt;
+    if ($.isArray(option)) {
+      for (j = 0, len = option.length; j < len; j++) {
+        opt = option[j];
+        this.addSelected(opt);
+      }
+      return;
+    }
+    $("<a href=\"javascript:;\" class=\"selected-option\" data-value=\"" + option.value + "\">\n  " + option.name + "\n</a>").data('option', option).insertBefore(this.linkAdd);
+    this.selected.push(option);
+    return this;
+  };
+
+  MultipleResultBox.prototype.removeSelected = function(option) {
+    var i, index, j, len, opt, ref;
+    this.el.find(".selected-option[data-value='" + option.value + "']").remove();
+    index = -1;
+    ref = this.selected;
+    for (i = j = 0, len = ref.length; j < len; i = ++j) {
+      opt = ref[i];
+      if (option.value === opt.value) {
+        index = i;
+        break;
+      }
+    }
+    if (index > -1) {
+      this.selected.splice(index, 1);
+    }
+    return this;
+  };
+
+  MultipleResultBox.prototype.setActive = function(active) {
+    if (active === this.active) {
+      return;
+    }
+    this.el.toggleClass('active', active);
+    this.active = active;
+    return this;
+  };
+
+  MultipleResultBox.prototype.setDisabled = function(disabled) {
+    if (disabled === this.disabled) {
+      return;
+    }
+    this.el.toggleClass('disabled', disabled);
+    this.disabled = disabled;
+    return this;
+  };
+
+  return MultipleResultBox;
+
+})(QingModule);
+
+module.exports = MultipleResultBox;
+
+},{}],5:[function(require,module,exports){
+var OptionsList,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+OptionsList = (function(superClass) {
+  extend(OptionsList, superClass);
+
+  OptionsList.opts = {
+    wrapper: null,
+    locales: null,
+    options: null,
+    totalOptionSize: null,
+    maxListSize: 0
+  };
+
+  function OptionsList(opts) {
+    OptionsList.__super__.constructor.apply(this, arguments);
+    $.extend(this.opts, OptionsList, opts);
+    this.wrapper = $(this.opts.wrapper);
+    if (!(this.wrapper.length > 0)) {
+      return;
+    }
+    this.highlighted = false;
+    this._render();
+    this._bind();
+  }
+
+  OptionsList.prototype._render = function() {
+    this.el = $('<div class="options-list"></div>').appendTo(this.wrapper);
+    if (this.opts.options) {
+      return this.renderOptions(this.opts.options, this.opts.totalOptionSize);
+    }
+  };
+
+  OptionsList.prototype._bind = function() {
+    return this.el.on('click', '.option', (function(_this) {
+      return function(e) {
+        var $option;
+        $option = $(e.currentTarget);
+        _this.setHighlighted($option);
+        _this.trigger('optionClick', [$option]);
+        return null;
+      };
+    })(this));
+  };
+
+  OptionsList.prototype.renderOptions = function(options, totalOptionSize) {
+    var option;
+    if (options == null) {
+      options = [];
+    }
+    options = options.slice(0, this.opts.maxListSize);
+    this.el.empty();
+    this.highlighted = false;
+    if (options.length > 0) {
+      this.el.append((function() {
+        var i, len, results;
+        results = [];
+        for (i = 0, len = options.length; i < len; i++) {
+          option = options[i];
+          results.push(this._optionEl(option));
+        }
+        return results;
+      }).call(this));
+    } else if (!totalOptionSize) {
+      this._renderEmpty();
+    }
+    if (totalOptionSize && totalOptionSize > options.length) {
+      this._renderHiddenSize(totalOptionSize - options.length);
+    }
+    return this.setHighlighted(this.el.find('.option:first'));
+  };
+
+  OptionsList.prototype._optionEl = function(option) {
+    var $optionEl;
+    $optionEl = $("<div class=\"option\">\n  <span class=\"label\"></span>\n  <span class=\"hint\"></span>\n</div>").data('option', option);
+    $optionEl.find('.label').text(option.name);
+    if (option.data.hint) {
+      $optionEl.find('.hint').text(option.data.hint);
+    }
+    $optionEl.attr('data-value', option.value);
+    $optionEl.data('option', option);
+    if ($.isFunction(this.opts.opitonRenderer)) {
+      this.opts.opitonRenderer.call(this, $optionEl, option);
+    }
+    return $optionEl;
+  };
+
+  OptionsList.prototype._renderEmpty = function() {
+    return this.el.append("<div class=\"no-options\">" + this.opts.locales.noOptions + "</div>");
+  };
+
+  OptionsList.prototype._renderHiddenSize = function(size) {
+    var text;
+    text = this.opts.locales.hiddenSize.replace(/\{\{\s?size\s?\}\}/g, size);
+    return this.el.append("<div class=\"hidden-size\">" + text + "</div>");
+  };
+
+  OptionsList.prototype.setHighlighted = function(highlighted) {
+    if (typeof highlighted !== 'object') {
+      highlighted = this.el.find(".option[data-value='" + highlighted + "']");
+    }
+    if (!(highlighted.length > 0)) {
+      return;
+    }
+    if (this.highlighted) {
+      this.highlighted.removeClass('highlighted');
+    }
+    this.highlighted = highlighted.addClass('highlighted');
+    return this;
+  };
+
+  OptionsList.prototype.highlightNextOption = function() {
+    var $nextOption;
+    if (this.highlighted) {
+      $nextOption = this.highlighted.next('.option');
+    } else {
+      $nextOption = this.el.find('.option:first');
+    }
+    if ($nextOption.length > 0) {
+      return this.setHighlighted($nextOption);
+    }
+  };
+
+  OptionsList.prototype.highlightPrevOption = function() {
+    var $prevOption;
+    if (this.highlighted) {
+      $prevOption = this.highlighted.prev('.option');
+    } else {
+      $prevOption = this.el.find('.option:first');
+    }
+    if ($prevOption.length > 0) {
+      return this.setHighlighted($prevOption);
+    }
+  };
+
+  return OptionsList;
+
+})(QingModule);
+
+module.exports = OptionsList;
+
+},{}],6:[function(require,module,exports){
+var OptionsList, Popover, SearchBox,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+SearchBox = require('./search-box.coffee');
+
+OptionsList = require('./options-list.coffee');
+
+Popover = (function(superClass) {
+  extend(Popover, superClass);
+
+  Popover.opts = {
+    wrapper: null,
+    dataProvider: null,
+    locales: null,
+    maxListSize: 0
+  };
+
+  function Popover(opts) {
+    Popover.__super__.constructor.apply(this, arguments);
+    $.extend(this.opts, SearchBox.opts, opts);
+    this.wrapper = $(this.opts.wrapper);
+    if (!(this.wrapper.length > 0)) {
+      return;
+    }
+    this.active = false;
+    this.dataProvider = this.opts.dataProvider;
+    this._render();
+    this._initChildComponents();
+    this._bind();
+  }
+
+  Popover.prototype._render = function() {
+    return this.el = $('<div class="popover">').appendTo(this.wrapper);
+  };
+
+  Popover.prototype._initChildComponents = function() {
+    this.searchBox = new SearchBox({
+      wrapper: this.el,
+      placeholder: this.opts.locales.searchPlaceholder
+    });
+    return this.optionsList = new OptionsList({
+      wrapper: this.el,
+      locales: this.opts.locales,
+      options: this.dataProvider.options,
+      totalOptionSize: this.dataProvider.totalOptionSize,
+      maxListSize: this.opts.maxListSize
+    });
+  };
+
+  Popover.prototype._bind = function() {
+    this.searchBox.on('change', (function(_this) {
+      return function(e, val) {
+        return _this.dataProvider.filter(val, function(options, totalSize) {
+          return _this.optionsList.renderOptions(options, totalSize);
+        });
+      };
+    })(this));
+    this.searchBox.on('enterPress', (function(_this) {
+      return function(e) {
+        if (_this.optionsList.highlighted) {
+          return _this._selectOption(_this.optionsList.highlighted);
+        }
+      };
+    })(this));
+    this.searchBox.on('arrowPress', (function(_this) {
+      return function(e, direction) {
+        if (direction === 'up') {
+          return _this.optionsList.highlightPrevOption();
+        } else if (direction === 'down') {
+          return _this.optionsList.highlightNextOption();
+        }
+      };
+    })(this));
+    return this.optionsList.on('optionClick', (function(_this) {
+      return function(e, $option) {
+        return _this._selectOption($option);
+      };
+    })(this));
+  };
+
+  Popover.prototype._selectOption = function($option) {
+    var option;
+    option = $option.data('option');
+    this.searchBox.setValue('');
+    this.optionsList.setHighlighted(option.value);
+    return this.trigger('select', [option]);
+  };
+
+  Popover.prototype.setActive = function(active) {
+    if (active === this.active) {
+      return;
+    }
+    this.el.toggleClass('active', active);
+    this.searchBox.focus();
+    this.active = active;
+    return this;
+  };
+
+  return Popover;
+
+})(QingModule);
+
+module.exports = Popover;
+
+},{"./options-list.coffee":5,"./search-box.coffee":8}],7:[function(require,module,exports){
+var ResultBox,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ResultBox = (function(superClass) {
+  extend(ResultBox, superClass);
+
+  ResultBox.opts = {
+    wrapper: null,
+    placeholder: '',
+    selected: false
+  };
+
+  function ResultBox(opts) {
+    ResultBox.__super__.constructor.apply(this, arguments);
+    $.extend(this.opts, ResultBox.opts, opts);
+    this.wrapper = $(this.opts.wrapper);
+    if (!(this.wrapper.length > 0)) {
+      return;
+    }
+    this.active = false;
+    this.disabled = false;
+    this._render();
+    this._bind();
+    this.setSelected(this.opts.selected);
+  }
+
+  ResultBox.prototype._render = function() {
+    return this.el = $("<div class=\"result-box\" tabindex=\"0\">\n  <div class=\"placeholder\">" + this.opts.placeholder + "</div>\n  <div class=\"result\"></div>\n  <i class=\"icon-expand\"><span>&#9662;</span></i>\n  <a class=\"link-clear\" href=\"javascript:;\" tabindex=\"-1\">\n    &#10005;\n  </a>\n</div>").appendTo(this.wrapper);
+  };
+
+  ResultBox.prototype._bind = function() {
+    this.el.on('click', (function(_this) {
+      return function(e) {
+        if (_this.disabled) {
+          return;
+        }
+        return _this.trigger('click');
+      };
+    })(this));
+    this.el.on('click', '.link-clear', (function(_this) {
+      return function(e) {
+        if (_this.disabled) {
+          return;
+        }
+        return _this.trigger('clearClick');
+      };
+    })(this));
+    return this.el.on('keydown', (function(_this) {
+      return function(e) {
+        var ref;
+        if (_this.disabled) {
+          return;
+        }
+        if ((ref = e.which) === 13 || ref === 38 || ref === 40) {
+          return _this.trigger('click');
+        }
+      };
+    })(this));
+  };
+
+  ResultBox.prototype.setSelected = function(selected) {
+    if (selected === this.selected) {
+      return;
+    }
+    if (selected) {
+      this.el.removeClass('empty').find('.result').text(selected.name);
+    } else {
+      this.el.addClass('empty').find('.result').text('');
+    }
+    this.selected = selected;
+    return this;
+  };
+
+  ResultBox.prototype.setActive = function(active) {
+    if (active === this.active) {
+      return;
+    }
+    this.el.toggleClass('active', active);
+    this.active = active;
+    return this;
+  };
+
+  ResultBox.prototype.setDisabled = function(disabled) {
+    if (disabled === this.disabled) {
+      return;
+    }
+    this.el.toggleClass('disabled', disabled);
+    if (disabled) {
+      this.el.removeAttr('tabindex');
+    } else {
+      this.el.attr('tabindex', '0');
+    }
+    this.disabled = disabled;
+    return this;
+  };
+
+  return ResultBox;
+
+})(QingModule);
+
+module.exports = ResultBox;
+
+},{}],8:[function(require,module,exports){
+var SearchBox,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+SearchBox = (function(superClass) {
+  extend(SearchBox, superClass);
+
+  SearchBox.opts = {
+    wrapper: null,
+    placeholder: ''
+  };
+
+  function SearchBox(opts) {
+    SearchBox.__super__.constructor.apply(this, arguments);
+    $.extend(this.opts, SearchBox.opts, opts);
+    this.wrapper = $(this.opts.wrapper);
+    if (!(this.wrapper.length > 0)) {
+      return;
+    }
+    this._inputDelay = 200;
+    this._render();
+    this._bind();
+  }
+
+  SearchBox.prototype._render = function() {
+    this.el = $("<div class=\"search-box\">\n  <input type=\"text\" class=\"text-field\" tabindex=\"-1\"\n    placeholder=\"" + this.opts.placeholder + "\" />\n  <span class=\"icon-search\">&#128269;</span>\n  <a href=\"javascript:;\" class=\"link-clear\" tabindex=\"-1\">X</a>\n</div>").appendTo(this.wrapper);
+    this.textField = this.el.find('.text-field');
+    return this.el;
+  };
+
+  SearchBox.prototype._bind = function() {
+    this.textField.on('input', (function(_this) {
+      return function(e) {
+        if (_this._inputTimer) {
+          clearTimeout(_this._inputTimer);
+          _this._inputTimer = null;
+        }
+        return _this._inputTimer = setTimeout(function() {
+          return _this.trigger('change', [_this.textField.val()]);
+        }, _this._inputDelay);
+      };
+    })(this));
+    this.textField.on('keydown', (function(_this) {
+      return function(e) {
+        if (e.which === 13) {
+          _this.trigger('enterPress');
+        } else if (e.which === 38) {
+          _this.trigger('arrowPress', ['up']);
+        } else if (e.which === 40) {
+          _this.trigger('arrowPress', ['down']);
+        }
+        return null;
+      };
+    })(this));
+    this.el.on('click', '.link-clear', (function(_this) {
+      return function(e) {
+        _this.textField.val('');
+        return _this.trigger('change', ['']);
+      };
+    })(this));
+    return this.on('change', function(e, val) {
+      return this.el.toggleClass('empty', !!val);
+    });
+  };
+
+  SearchBox.prototype.getValue = function() {
+    return this.textField.val();
+  };
+
+  SearchBox.prototype.setValue = function(val) {
+    this.textField.val(val);
+    this.trigger('change', [val]);
+    return this;
+  };
+
+  return SearchBox;
+
+})(QingModule);
+
+module.exports = SearchBox;
+
+},{}],"qing-select":[function(require,module,exports){
+var DataProvider, HtmlSelect, MultipleResultBox, Popover, QingSelect, ResultBox,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+DataProvider = require('./models/data-provider.coffee');
+
+HtmlSelect = require('./html-select.coffee');
+
+MultipleResultBox = require('./multiple-result-box.coffee');
+
+ResultBox = require('./result-box.coffee');
+
+Popover = require('./popover.coffee');
 
 QingSelect = (function(superClass) {
   extend(QingSelect, superClass);
 
+  QingSelect.name = 'QingSelect';
+
   QingSelect.opts = {
-    el: null
+    el: null,
+    remote: false,
+    totalOptionSize: null,
+    maxListSize: 20,
+    locales: null
+  };
+
+  QingSelect.locales = {
+    searchPlaceholder: 'Search',
+    noOptions: 'Found nothing.',
+    hiddenSize: '{{ size }} more records are hidden, please search for them.'
   };
 
   function QingSelect(opts) {
@@ -35,17 +855,136 @@ QingSelect = (function(superClass) {
       throw new Error('QingSelect: option el is required');
     }
     this.opts = $.extend({}, QingSelect.opts, this.opts);
+    this.locales = $.extend({}, QingSelect.locales, this.opts.locales);
+    this.active = false;
     this._render();
-    this.trigger('ready');
+    this._initChildComponents();
+    this._bind();
   }
 
   QingSelect.prototype._render = function() {
-    this.el.append("<p>This is a sample component.</p>");
-    return this.el.addClass(' qing-select').data('qingSelect', this);
+    this.wrapper = $('<div class="qing-select"></div>').insertBefore(this.el);
+    return this.el.addClass(' qing-select').appendTo(this.wrapper).data('qingSelect', this);
+  };
+
+  QingSelect.prototype._initChildComponents = function() {
+    var options, selected;
+    this.htmlSelect = new HtmlSelect({
+      el: this.el
+    });
+    options = this.htmlSelect.getOptions();
+    this.dataProvider = new DataProvider({
+      remote: this.opts.remote,
+      options: options,
+      totalOptionSize: this.opts.totalOptionSize || options.length
+    });
+    this.multiple = this.el.is('[multiple]');
+    selected = this.dataProvider.options.filter(function(option) {
+      return option.selected;
+    });
+    this.resultBox = this.multiple ? new MultipleResultBox({
+      wrapper: this.wrapper,
+      placeholder: this._placeholder(),
+      selected: selected
+    }) : new ResultBox({
+      wrapper: this.wrapper,
+      placeholder: this._placeholder(),
+      selected: selected.length > 0 ? selected[0] : false
+    });
+    return this.popover = new Popover({
+      wrapper: this.wrapper,
+      dataProvider: this.dataProvider,
+      locales: this.locales,
+      maxListSize: this.opts.maxListSize
+    });
+  };
+
+  QingSelect.prototype._bind = function() {
+    if (this.multiple) {
+      this.resultBox.on('addClick', (function(_this) {
+        return function(e) {
+          return _this._setActive(true);
+        };
+      })(this));
+      this.resultBox.on('optionClick', (function(_this) {
+        return function(e, option) {
+          return _this.unselectOption(option);
+        };
+      })(this));
+    } else {
+      this.resultBox.on('click', (function(_this) {
+        return function(e) {
+          return _this._setActive(!_this.active);
+        };
+      })(this));
+      this.resultBox.on('clearClick', (function(_this) {
+        return function(e) {
+          if (!_this.resultBox.selected) {
+            return;
+          }
+          return _this.unselectOption(_this.resultBox.selected);
+        };
+      })(this));
+    }
+    return this.popover.on('select', (function(_this) {
+      return function(e, option) {
+        return _this.selectOption(option);
+      };
+    })(this));
+  };
+
+  QingSelect.prototype._placeholder = function() {
+    var $blankOption;
+    return this.placeholder || (this.placeholder = this.opts.placeholder ? this.opts.placeholder : ($blankOption = this.htmlSelect.getBlankOption()) ? $blankOption.text() : '');
+  };
+
+  QingSelect.prototype._setActive = function(active) {
+    if (active === this.active) {
+      return;
+    }
+    this.resultBox.setActive(active);
+    this.popover.setActive(active);
+    $(document).off('.qing-select');
+    if (active) {
+      $(document).one('mousedown.qing-select', (function(_this) {
+        return function(e) {
+          if (e.target === _this.el[0] || $.contains(_this.el[0], e.target)) {
+            return;
+          }
+          return _this._setActive(false);
+        };
+      })(this));
+    }
+    this.active = active;
+    return this;
+  };
+
+  QingSelect.prototype.selectOption = function(option) {
+    if (this.multiple) {
+      this.resultBox.addSelected(option);
+    } else {
+      this.resultBox.setSelected(option);
+    }
+    this.htmlSelect.selectOption(option);
+    this._setActive(false);
+    return this;
+  };
+
+  QingSelect.prototype.unselectOption = function(option) {
+    if (this.multiple) {
+      this.resultBox.removeSelected(option);
+    } else {
+      this.resultBox.setSelected(false);
+    }
+    this.htmlSelect.unselectOption(option);
+    this._setActive(false);
+    return this;
   };
 
   QingSelect.prototype.destroy = function() {
-    return this.el.empty().removeData('qingSelect');
+    this.el.empty().removeData('qingSelect');
+    $(document).off('.qing-select');
+    return this;
   };
 
   return QingSelect;
@@ -54,7 +993,7 @@ QingSelect = (function(superClass) {
 
 module.exports = QingSelect;
 
-},{}]},{},[]);
+},{"./html-select.coffee":1,"./models/data-provider.coffee":2,"./multiple-result-box.coffee":4,"./popover.coffee":6,"./result-box.coffee":7}]},{},[]);
 
 return b('qing-select');
 }));
