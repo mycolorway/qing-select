@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-09-17
+ * Date: 2016-09-20
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -55,10 +55,12 @@ HtmlSelect = (function(superClass) {
   };
 
   HtmlSelect.prototype.selectOption = function(option) {
-    if (!(this.el.find("option[value='" + option.value + "']").length > 0)) {
-      this.el.append(this._renderOption(option));
+    var $option;
+    $option = this.el.find("option[value='" + option.value + "']");
+    if (!($option.length > 0)) {
+      $option = this._renderOption(option).appendTo(this.el);
     }
-    this.el.val(option.value);
+    $option.prop('selected', true);
     return this;
   };
 
@@ -133,7 +135,7 @@ DataProvider = (function(superClass) {
       }
       return results;
     }).call(this);
-    this.totalSize = this.opts.totalSize;
+    this.totalOptionSize = this.opts.totalOptionSize;
   }
 
   DataProvider.prototype._fetch = function(value, callback) {
@@ -143,8 +145,8 @@ DataProvider = (function(superClass) {
     }
     onFetch = (function(_this) {
       return function(result) {
-        var option, options;
-        options = (function() {
+        var option;
+        result.options = (function() {
           var j, len, ref, results;
           ref = result.options;
           results = [];
@@ -154,8 +156,8 @@ DataProvider = (function(superClass) {
           }
           return results;
         })();
-        _this.trigger('fetch', [options, result.totalSize, value]);
-        return callback != null ? callback.call(_this, options, result.totalSize) : void 0;
+        _this.trigger('fetch', [result, value]);
+        return callback != null ? callback.call(_this, result) : void 0;
       };
     })(this);
     return $.ajax({
@@ -174,21 +176,20 @@ DataProvider = (function(superClass) {
   DataProvider.prototype.filter = function(value, callback) {
     var afterFilter, options;
     afterFilter = (function(_this) {
-      return function(options, totalSize) {
-        options = options.filter(function(option, i) {
-          return !option.selected;
-        });
-        if (callback != null) {
-          callback.call(_this, options, totalSize);
-        }
-        return _this.trigger('filter', [options, totalSize, value]);
+      return function(result) {
+        _this.trigger('beforeFilterComplete', [result, value]);
+        _this.trigger('filter', [result, value]);
+        return callback != null ? callback.call(_this, result) : void 0;
       };
     })(this);
     if (this.remote) {
       if (value) {
         this._fetch(value, afterFilter);
       } else {
-        afterFilter(this.options, this.totalSize);
+        afterFilter({
+          options: this.options,
+          totalSize: this.totalOptionSize
+        });
       }
     } else {
       options = [];
@@ -197,9 +198,26 @@ DataProvider = (function(superClass) {
           return options.push(option);
         }
       });
-      afterFilter(options, options.length);
+      afterFilter({
+        options: options,
+        totalSize: options.length
+      });
     }
     return null;
+  };
+
+  DataProvider.prototype.getOption = function(value) {
+    var result;
+    result = this.options.filter((function(_this) {
+      return function(option, i) {
+        return option.value === value;
+      };
+    })(this));
+    if (result.length > 0) {
+      return result[0];
+    } else {
+      return null;
+    }
   };
 
   return DataProvider;
@@ -220,7 +238,7 @@ Option = (function(superClass) {
     this.name = option[0];
     this.value = option[1].toString();
     this.data = {};
-    if (option.length > 2 && $.isArray(option[2])) {
+    if (option.length > 2 && $.isPlainObject(option[2])) {
       $.each(option[2], (function(_this) {
         return function(key, value) {
           key = key.replace(/^data-/, '').split('-');
@@ -266,7 +284,8 @@ MultipleResultBox = (function(superClass) {
   MultipleResultBox.opts = {
     wrapper: null,
     placeholder: '',
-    selected: false
+    selected: false,
+    locales: null
   };
 
   function MultipleResultBox(opts) {
@@ -287,7 +306,7 @@ MultipleResultBox = (function(superClass) {
   }
 
   MultipleResultBox.prototype._render = function() {
-    this.el = $("<div class=\"result-box\">\n  <a class=\"link-add\" href=\"javascript:;\" tabindex=\"0\">+</a>\n</div>").appendTo(this.wrapper);
+    this.el = $("<div class=\"multiple-result-box\">\n  <a class=\"link-add\" href=\"javascript:;\">\n    <i class=\"icon-add\">&#65291;</i>\n    <span>" + this.opts.locales.addSelected + "</span>\n  </a>\n</div>").appendTo(this.wrapper);
     return this.linkAdd = this.el.find('.link-add');
   };
 
@@ -310,14 +329,33 @@ MultipleResultBox = (function(superClass) {
         return _this.trigger('optionClick', [$option.data('option')]);
       };
     })(this));
-    return this.linkAdd.on('keydown', (function(_this) {
+    this.el.on('keydown', '.selected-option', (function(_this) {
       return function(e) {
-        var ref;
+        var $option;
         if (_this.disabled) {
           return;
         }
-        if ((ref = e.which) === 13 || ref === 38 || ref === 40) {
-          return _this.trigger('addClick');
+        $option = $(e.currentTarget);
+        if (e.which === 13) {
+          _this.trigger('optionClick', [$option.data('option')]);
+          return false;
+        }
+      };
+    })(this));
+    return this.linkAdd.on('keydown', (function(_this) {
+      return function(e) {
+        if (_this.disabled) {
+          return;
+        }
+        if (e.which === 13) {
+          _this.trigger('enterPress');
+          return false;
+        } else if (e.which === 38) {
+          _this.trigger('arrowPress', ['up']);
+          return false;
+        } else if (e.which === 40) {
+          _this.trigger('arrowPress', ['down']);
+          return false;
         }
       };
     })(this));
@@ -332,7 +370,7 @@ MultipleResultBox = (function(superClass) {
       }
       return;
     }
-    $("<a href=\"javascript:;\" class=\"selected-option\" data-value=\"" + option.value + "\">\n  " + option.name + "\n</a>").data('option', option).insertBefore(this.linkAdd);
+    $("<a href=\"javascript:;\" class=\"selected-option\"\n  data-value=\"" + option.value + "\">\n  <span class=\"name\">" + option.name + "</span>\n  <i class=\"icon-remove\">&#10005;</i>\n</a>").data('option', option).insertBefore(this.linkAdd);
     this.selected.push(option);
     return this;
   };
@@ -370,6 +408,11 @@ MultipleResultBox = (function(superClass) {
     }
     this.el.toggleClass('disabled', disabled);
     this.disabled = disabled;
+    return this;
+  };
+
+  MultipleResultBox.prototype.focus = function() {
+    this.linkAdd.focus();
     return this;
   };
 
@@ -432,7 +475,7 @@ OptionsList = (function(superClass) {
       options = [];
     }
     options = options.slice(0, this.opts.maxListSize);
-    this.el.empty();
+    this.el.empty().css('min-height', 0);
     this.highlighted = false;
     if (options.length > 0) {
       this.el.append((function() {
@@ -444,24 +487,29 @@ OptionsList = (function(superClass) {
         }
         return results;
       }).call(this));
-    } else if (!totalOptionSize) {
+      if (totalOptionSize > options.length) {
+        this._renderHiddenSize(totalOptionSize - options.length);
+      }
+    } else {
       this._renderEmpty();
     }
-    if (totalOptionSize && totalOptionSize > options.length) {
-      this._renderHiddenSize(totalOptionSize - options.length);
+    if (!this.highlighted) {
+      return this.setHighlighted(this.el.find('.option:first'));
     }
-    return this.setHighlighted(this.el.find('.option:first'));
   };
 
   OptionsList.prototype._optionEl = function(option) {
     var $optionEl;
-    $optionEl = $("<div class=\"option\">\n  <span class=\"label\"></span>\n  <span class=\"hint\"></span>\n</div>").data('option', option);
-    $optionEl.find('.label').text(option.name);
+    $optionEl = $("<div class=\"option\">\n  <div class=\"left\">\n    <span class=\"name\"></span>\n  </div>\n  <div class=\"right\">\n    <span class=\"hint\"></span>\n  </div>\n</div>").data('option', option);
+    $optionEl.find('.name').text(option.name);
     if (option.data.hint) {
       $optionEl.find('.hint').text(option.data.hint);
     }
     $optionEl.attr('data-value', option.value);
     $optionEl.data('option', option);
+    if (option.selected) {
+      this.setHighlighted($optionEl);
+    }
     if ($.isFunction(this.opts.opitonRenderer)) {
       this.opts.opitonRenderer.call(this, $optionEl, option);
     }
@@ -476,6 +524,20 @@ OptionsList = (function(superClass) {
     var text;
     text = this.opts.locales.hiddenSize.replace(/\{\{\s?size\s?\}\}/g, size);
     return this.el.append("<div class=\"hidden-size\">" + text + "</div>");
+  };
+
+  OptionsList.prototype.setLoading = function(loading) {
+    if (loading === this.loading) {
+      return;
+    }
+    this.el.toggleClass('loading', loading);
+    if (loading) {
+      this.el.append("<div class=\"loading-message\">" + this.opts.locales.loading + "</div>");
+    } else {
+      this.el.find('.loading').remove();
+    }
+    this.loading = loading;
+    return this;
   };
 
   OptionsList.prototype.setHighlighted = function(highlighted) {
@@ -538,7 +600,8 @@ Popover = (function(superClass) {
     wrapper: null,
     dataProvider: null,
     locales: null,
-    maxListSize: 0
+    maxListSize: 0,
+    searchableSize: 8
   };
 
   function Popover(opts) {
@@ -550,19 +613,21 @@ Popover = (function(superClass) {
     }
     this.active = false;
     this.dataProvider = this.opts.dataProvider;
+    this.searchable = this.dataProvider.totalOptionSize > this.dataProvider.options.length || this.dataProvider.options.length > this.opts.searchableSize;
     this._render();
     this._initChildComponents();
     this._bind();
   }
 
   Popover.prototype._render = function() {
-    return this.el = $('<div class="popover">').appendTo(this.wrapper);
+    return this.el = $('<div class="qing-select-popover">');
   };
 
   Popover.prototype._initChildComponents = function() {
     this.searchBox = new SearchBox({
       wrapper: this.el,
-      placeholder: this.opts.locales.searchPlaceholder
+      placeholder: this.opts.locales.searchPlaceholder,
+      hidden: !this.searchable
     });
     return this.optionsList = new OptionsList({
       wrapper: this.el,
@@ -576,9 +641,14 @@ Popover = (function(superClass) {
   Popover.prototype._bind = function() {
     this.searchBox.on('change', (function(_this) {
       return function(e, val) {
-        return _this.dataProvider.filter(val, function(options, totalSize) {
-          return _this.optionsList.renderOptions(options, totalSize);
-        });
+        _this.optionsList.setLoading(true);
+        return _this.dataProvider.filter(val);
+      };
+    })(this));
+    this.dataProvider.on('filter', (function(_this) {
+      return function(e, result, value) {
+        _this.optionsList.setLoading(false);
+        return _this.optionsList.renderOptions(result.options, result.totalSize);
       };
     })(this));
     this.searchBox.on('enterPress', (function(_this) {
@@ -586,6 +656,11 @@ Popover = (function(superClass) {
         if (_this.optionsList.highlighted) {
           return _this._selectOption(_this.optionsList.highlighted);
         }
+      };
+    })(this));
+    this.searchBox.on('escapePress', (function(_this) {
+      return function(e) {
+        return _this.setActive(false);
       };
     })(this));
     this.searchBox.on('arrowPress', (function(_this) {
@@ -607,8 +682,8 @@ Popover = (function(superClass) {
   Popover.prototype._selectOption = function($option) {
     var option;
     option = $option.data('option');
-    this.searchBox.setValue('');
     this.optionsList.setHighlighted(option.value);
+    this.searchBox.textField.val('');
     return this.trigger('select', [option]);
   };
 
@@ -616,8 +691,14 @@ Popover = (function(superClass) {
     if (active === this.active) {
       return;
     }
-    this.el.toggleClass('active', active);
-    this.searchBox.focus();
+    if (active) {
+      this.el.addClass('active').appendTo(this.opts.appendTo);
+      this.searchBox.focus();
+      this.trigger('show');
+    } else {
+      this.el.removeClass('active').detach();
+      this.trigger('hide');
+    }
     this.active = active;
     return this;
   };
@@ -674,17 +755,24 @@ ResultBox = (function(superClass) {
         if (_this.disabled) {
           return;
         }
-        return _this.trigger('clearClick');
+        _this.trigger('clearClick');
+        return false;
       };
     })(this));
     return this.el.on('keydown', (function(_this) {
       return function(e) {
-        var ref;
         if (_this.disabled) {
           return;
         }
-        if ((ref = e.which) === 13 || ref === 38 || ref === 40) {
-          return _this.trigger('click');
+        if (e.which === 13) {
+          _this.trigger('enterPress');
+          return false;
+        } else if (e.which === 38) {
+          _this.trigger('arrowPress', ['up']);
+          return false;
+        } else if (e.which === 40) {
+          _this.trigger('arrowPress', ['down']);
+          return false;
         }
       };
     })(this));
@@ -726,6 +814,11 @@ ResultBox = (function(superClass) {
     return this;
   };
 
+  ResultBox.prototype.focus = function() {
+    this.el.focus();
+    return this;
+  };
+
   return ResultBox;
 
 })(QingModule);
@@ -742,7 +835,8 @@ SearchBox = (function(superClass) {
 
   SearchBox.opts = {
     wrapper: null,
-    placeholder: ''
+    placeholder: '',
+    hidden: false
   };
 
   function SearchBox(opts) {
@@ -758,7 +852,10 @@ SearchBox = (function(superClass) {
   }
 
   SearchBox.prototype._render = function() {
-    this.el = $("<div class=\"search-box\">\n  <input type=\"text\" class=\"text-field\" tabindex=\"-1\"\n    placeholder=\"" + this.opts.placeholder + "\" />\n  <span class=\"icon-search\">&#128269;</span>\n  <a href=\"javascript:;\" class=\"link-clear\" tabindex=\"-1\">X</a>\n</div>").appendTo(this.wrapper);
+    this.el = $("<div class=\"search-box\">\n  <input type=\"text\" class=\"text-field\" tabindex=\"-1\"\n    placeholder=\"" + this.opts.placeholder + "\" />\n  <span class=\"icon-search\">&#128269;</span>\n</div>").appendTo(this.wrapper);
+    if (this.opts.hidden) {
+      this.el.addClass('hidden');
+    }
     this.textField = this.el.find('.text-field');
     return this.el;
   };
@@ -779,18 +876,15 @@ SearchBox = (function(superClass) {
       return function(e) {
         if (e.which === 13) {
           _this.trigger('enterPress');
+        } else if (e.which === 27) {
+          _this.setValue('');
+          _this.trigger('escapePress');
         } else if (e.which === 38) {
           _this.trigger('arrowPress', ['up']);
         } else if (e.which === 40) {
           _this.trigger('arrowPress', ['down']);
         }
         return null;
-      };
-    })(this));
-    this.el.on('click', '.link-clear', (function(_this) {
-      return function(e) {
-        _this.textField.val('');
-        return _this.trigger('change', ['']);
       };
     })(this));
     return this.on('change', function(e, val) {
@@ -808,6 +902,11 @@ SearchBox = (function(superClass) {
     return this;
   };
 
+  SearchBox.prototype.focus = function() {
+    this.textField.focus();
+    return this;
+  };
+
   return SearchBox;
 
 })(QingModule);
@@ -815,11 +914,14 @@ SearchBox = (function(superClass) {
 module.exports = SearchBox;
 
 },{}],"qing-select":[function(require,module,exports){
-var DataProvider, HtmlSelect, MultipleResultBox, Popover, QingSelect, ResultBox,
+var DataProvider, HtmlSelect, MultipleResultBox, Option, Popover, QingSelect, ResultBox,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 DataProvider = require('./models/data-provider.coffee');
+
+Option = require('./models/option.coffee');
 
 HtmlSelect = require('./html-select.coffee');
 
@@ -836,16 +938,22 @@ QingSelect = (function(superClass) {
 
   QingSelect.opts = {
     el: null,
+    renderer: null,
     remote: false,
-    totalOptionSize: null,
+    totalOptionSize: 0,
     maxListSize: 20,
+    popoverOffset: 6,
+    popoverAppendTo: 'body',
+    searchableSize: 8,
     locales: null
   };
 
   QingSelect.locales = {
     searchPlaceholder: 'Search',
+    addSelected: 'New',
     noOptions: 'Found nothing.',
-    hiddenSize: '{{ size }} more records are hidden, please search for them.'
+    hiddenSize: '{{ size }} more records are hidden, please search for them',
+    loading: 'Loading...'
   };
 
   function QingSelect(opts) {
@@ -860,11 +968,14 @@ QingSelect = (function(superClass) {
     this._render();
     this._initChildComponents();
     this._bind();
+    if ($.isFunction(this.opts.renderer)) {
+      this.opts.renderer.call(this, this.el);
+    }
   }
 
   QingSelect.prototype._render = function() {
     this.wrapper = $('<div class="qing-select"></div>').insertBefore(this.el);
-    return this.el.addClass(' qing-select').appendTo(this.wrapper).data('qingSelect', this);
+    return this.el.hide().appendTo(this.wrapper).data('qingSelect', this);
   };
 
   QingSelect.prototype._initChildComponents = function() {
@@ -876,7 +987,7 @@ QingSelect = (function(superClass) {
     this.dataProvider = new DataProvider({
       remote: this.opts.remote,
       options: options,
-      totalOptionSize: this.opts.totalOptionSize || options.length
+      totalOptionSize: this.opts.totalOptionSize
     });
     this.multiple = this.el.is('[multiple]');
     selected = this.dataProvider.options.filter(function(option) {
@@ -885,7 +996,8 @@ QingSelect = (function(superClass) {
     this.resultBox = this.multiple ? new MultipleResultBox({
       wrapper: this.wrapper,
       placeholder: this._placeholder(),
-      selected: selected
+      selected: selected,
+      locales: this.locales
     }) : new ResultBox({
       wrapper: this.wrapper,
       placeholder: this._placeholder(),
@@ -895,11 +1007,36 @@ QingSelect = (function(superClass) {
       wrapper: this.wrapper,
       dataProvider: this.dataProvider,
       locales: this.locales,
-      maxListSize: this.opts.maxListSize
+      maxListSize: this.opts.maxListSize,
+      searchableSize: this.opts.searchableSize,
+      appendTo: this.opts.popoverAppendTo
     });
   };
 
   QingSelect.prototype._bind = function() {
+    this.resultBox.on('enterPress', (function(_this) {
+      return function(e) {
+        var highlighted;
+        if (_this.active && !_this.popover.searchable && (highlighted = _this.popover.optionsList.highlighted)) {
+          return _this.selectOption(highlighted.data('option'));
+        } else {
+          return _this._setActive(!_this.active);
+        }
+      };
+    })(this));
+    this.resultBox.on('arrowPress', (function(_this) {
+      return function(e, direction) {
+        if (_this.active && !_this.popover.searchable) {
+          if (direction === 'up') {
+            return _this.popover.optionsList.highlightPrevOption();
+          } else {
+            return _this.popover.optionsList.highlightNextOption();
+          }
+        } else {
+          return _this._setActive(!_this.active);
+        }
+      };
+    })(this));
     if (this.multiple) {
       this.resultBox.on('addClick', (function(_this) {
         return function(e) {
@@ -926,9 +1063,43 @@ QingSelect = (function(superClass) {
         };
       })(this));
     }
-    return this.popover.on('select', (function(_this) {
+    this.popover.on('select', (function(_this) {
       return function(e, option) {
         return _this.selectOption(option);
+      };
+    })(this));
+    this.popover.on('show', (function(_this) {
+      return function(e) {
+        return _this.popover.el.css(_this._popoverPosition());
+      };
+    })(this));
+    this.popover.searchBox.on('escapePress', (function(_this) {
+      return function(e) {
+        return _this._setActive(false);
+      };
+    })(this));
+    return this.dataProvider.on('beforeFilterComplete', (function(_this) {
+      return function(e, result, value) {
+        var j, len, option, ref, ref1, results, selected;
+        selected = _this.htmlSelect.getValue() || [];
+        if (!$.isArray(selected)) {
+          selected = [selected];
+        }
+        if (_this.multiple) {
+          result.options = result.options.filter(function(option, i) {
+            var ref;
+            return !(ref = option.value, indexOf.call(selected, ref) >= 0);
+          });
+          return result.totalSize -= selected.length;
+        } else {
+          ref = result.options;
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            option = ref[j];
+            results.push(option.selected = (ref1 = option.value, indexOf.call(selected, ref1) >= 0));
+          }
+          return results;
+        }
       };
     })(this));
   };
@@ -944,33 +1115,63 @@ QingSelect = (function(superClass) {
     }
     this.resultBox.setActive(active);
     this.popover.setActive(active);
-    $(document).off('.qing-select');
+    $(document).off('mousedown.qing-select');
     if (active) {
-      $(document).one('mousedown.qing-select', (function(_this) {
+      $(document).on('mousedown.qing-select', (function(_this) {
         return function(e) {
-          if (e.target === _this.el[0] || $.contains(_this.el[0], e.target)) {
+          if ($.contains(_this.wrapper[0], e.target) || $.contains(_this.popover.el[0], e.target)) {
             return;
           }
-          return _this._setActive(false);
+          _this._setActive(false);
+          return $(document).off('mousedown.qing-select');
         };
       })(this));
+    } else {
+      this.resultBox.focus();
     }
     this.active = active;
     return this;
   };
 
+  QingSelect.prototype._popoverPosition = function() {
+    var resultBoxHeight, resultBoxPosition, resultBoxWidth;
+    resultBoxPosition = this.resultBox.el.offset();
+    resultBoxHeight = this.resultBox.el.outerHeight();
+    resultBoxWidth = this.resultBox.el.outerWidth();
+    return {
+      top: resultBoxPosition.top + resultBoxHeight + this.opts.popoverOffset,
+      left: resultBoxPosition.left,
+      minWidth: resultBoxWidth
+    };
+  };
+
   QingSelect.prototype.selectOption = function(option) {
+    var oldOption;
+    if (!(option instanceof Option)) {
+      option = this.dataProvider.getOption(option);
+    }
+    option.selected = true;
     if (this.multiple) {
       this.resultBox.addSelected(option);
     } else {
+      if (oldOption = this.resultBox.selected) {
+        oldOption.selected = false;
+        this.htmlSelect.unselectOption(oldOption);
+      }
       this.resultBox.setSelected(option);
     }
     this.htmlSelect.selectOption(option);
     this._setActive(false);
+    this.dataProvider.filter('');
+    this.trigger('change', [this.resultBox.selected]);
     return this;
   };
 
   QingSelect.prototype.unselectOption = function(option) {
+    if (!(option instanceof Option)) {
+      option = this.dataProvider.getOption(option);
+    }
+    option.selected = false;
     if (this.multiple) {
       this.resultBox.removeSelected(option);
     } else {
@@ -978,11 +1179,15 @@ QingSelect = (function(superClass) {
     }
     this.htmlSelect.unselectOption(option);
     this._setActive(false);
+    this.dataProvider.filter('');
+    this.trigger('change', [this.resultBox.selected]);
     return this;
   };
 
   QingSelect.prototype.destroy = function() {
-    this.el.empty().removeData('qingSelect');
+    this.el.insertBefore(this.wrapper).show().removeData('qingSelect');
+    this.popover.el.remove();
+    this.wrapper.remove();
     $(document).off('.qing-select');
     return this;
   };
@@ -993,7 +1198,7 @@ QingSelect = (function(superClass) {
 
 module.exports = QingSelect;
 
-},{"./html-select.coffee":1,"./models/data-provider.coffee":2,"./multiple-result-box.coffee":4,"./popover.coffee":6,"./result-box.coffee":7}]},{},[]);
+},{"./html-select.coffee":1,"./models/data-provider.coffee":2,"./models/option.coffee":3,"./multiple-result-box.coffee":4,"./popover.coffee":6,"./result-box.coffee":7}]},{},[]);
 
 return b('qing-select');
 }));

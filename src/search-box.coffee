@@ -4,6 +4,7 @@ class SearchBox extends QingModule
   @opts:
     wrapper: null
     placeholder: ''
+    hidden: false
 
   constructor: (opts) ->
     super
@@ -22,10 +23,10 @@ class SearchBox extends QingModule
         <input type="text" class="text-field" tabindex="-1"
           placeholder="#{@opts.placeholder}" />
         <span class="icon-search">&#128269;</span>
-        <a href="javascript:;" class="link-clear" tabindex="-1">X</a>
       </div>
     """).appendTo @wrapper
 
+    @el.addClass('hidden') if @opts.hidden
     @textField = @el.find '.text-field'
     @el
 
@@ -41,15 +42,14 @@ class SearchBox extends QingModule
     @textField.on 'keydown', (e) =>
       if e.which == 13
         @trigger 'enterPress'
+      else if e.which == 27
+        @setValue ''
+        @trigger 'escapePress'
       else if e.which == 38
         @trigger 'arrowPress', ['up']
       else if e.which == 40
         @trigger 'arrowPress', ['down']
       null
-
-    @el.on 'click', '.link-clear', (e) =>
-      @textField.val ''
-      @trigger 'change', ['']
 
     @on 'change', (e, val) ->
       @el.toggleClass 'empty', !!val
@@ -60,6 +60,10 @@ class SearchBox extends QingModule
   setValue: (val) ->
     @textField.val val
     @trigger 'change', [val]
+    @
+
+  focus: ->
+    @textField.focus()
     @
 
 module.exports = SearchBox

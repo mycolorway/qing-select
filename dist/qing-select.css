@@ -6,9 +6,167 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-09-17
+ * Date: 2016-09-20
  */
 .qing-select {
-  border: 1px solid #cccccc;
-  padding: 10px;
-  text-align: center; }
+  position: relative; }
+  .qing-select .result-box {
+    position: relative;
+    box-sizing: border-box;
+    height: 40px;
+    line-height: 38px;
+    padding: 0 10px;
+    background: #FFFFFF;
+    border: 1px solid #DFDFDF;
+    border-radius: 2px;
+    font-size: 16px;
+    transition: border-color 400ms, box-shadow 400ms;
+    cursor: pointer; }
+    .qing-select .result-box:hover {
+      border-color: #ACC6E4; }
+    .qing-select .result-box.active, .qing-select .result-box:focus {
+      border-color: #ACC6E4;
+      box-shadow: 0px 0px 4px 0px rgba(74, 144, 226, 0.5);
+      outline: none; }
+    .qing-select .result-box .placeholder {
+      display: none;
+      color: #9b9b9b; }
+    .qing-select .result-box .icon-expand,
+    .qing-select .result-box .link-clear {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-style: normal;
+      width: 38px;
+      height: 38px;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 18px;
+      color: #9b9b9b; }
+    .qing-select .result-box .link-clear {
+      display: block;
+      font-size: 16px;
+      text-decoration: none;
+      outline: none; }
+      .qing-select .result-box .link-clear:hover {
+        color: #4a4a4a; }
+    .qing-select .result-box.empty .placeholder, .qing-select .result-box.empty .icon-expand {
+      display: block; }
+    .qing-select .result-box.empty .result, .qing-select .result-box.empty .link-clear {
+      display: none; }
+  .qing-select .multiple-result-box {
+    display: flex;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap; }
+    .qing-select .multiple-result-box .selected-option,
+    .qing-select .multiple-result-box .link-add {
+      display: flex;
+      align-items: center;
+      align-content: center;
+      flex: 0 0 auto;
+      padding: 0 8px;
+      margin: 0 5px 5px 0;
+      height: 32px;
+      line-height: normal;
+      background: #f6f6f6;
+      border-radius: 2px;
+      color: #4a4a4a;
+      font-size: 14px;
+      text-decoration: none;
+      outline: none; }
+      .qing-select .multiple-result-box .selected-option .icon-remove,
+      .qing-select .multiple-result-box .link-add .icon-remove {
+        font-style: normal;
+        margin: 0 0 0 5px;
+        color: #9b9b9b; }
+      .qing-select .multiple-result-box .selected-option:hover,
+      .qing-select .multiple-result-box .link-add:hover {
+        background: #f3f3f3; }
+        .qing-select .multiple-result-box .selected-option:hover .icon-remove,
+        .qing-select .multiple-result-box .link-add:hover .icon-remove {
+          color: #4a4a4a; }
+      .qing-select .multiple-result-box .selected-option:focus,
+      .qing-select .multiple-result-box .link-add:focus {
+        box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.4); }
+    .qing-select .multiple-result-box .link-add {
+      padding: 0 10px 0 8px; }
+      .qing-select .multiple-result-box .link-add .icon-add {
+        font-style: normal;
+        font-size: 16px;
+        margin: 0 2px 0 0; }
+
+.qing-select-popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.2);
+  box-sizing: border-box; }
+  .qing-select-popover .search-box {
+    position: relative;
+    border-bottom: 1px solid #eeeeee; }
+    .qing-select-popover .search-box.hidden {
+      display: none; }
+    .qing-select-popover .search-box .text-field {
+      display: block;
+      width: 100%;
+      height: 40px;
+      line-height: 20px;
+      border: none;
+      padding: 10px 40px;
+      box-sizing: border-box;
+      font-size: 14px;
+      outline: none; }
+    .qing-select-popover .search-box .icon-search {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      text-align: center; }
+  .qing-select-popover .options-list {
+    max-height: 320px;
+    overflow-y: auto; }
+    .qing-select-popover .options-list .option {
+      display: flex;
+      height: 40px;
+      line-height: 39px;
+      border-bottom: 1px solid #eeeeee;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      box-sizing: border-box; }
+      .qing-select-popover .options-list .option:hover {
+        background: #f6f6f6; }
+      .qing-select-popover .options-list .option.highlighted {
+        background: #f6f6f6; }
+      .qing-select-popover .options-list .option:last-child {
+        border-bottom: none; }
+      .qing-select-popover .options-list .option .left,
+      .qing-select-popover .options-list .option .right {
+        flex: 1 0 auto;
+        padding: 0 10px; }
+      .qing-select-popover .options-list .option .right {
+        text-align: right; }
+      .qing-select-popover .options-list .option .name {
+        font-size: 14px;
+        color: #4a4a4a; }
+      .qing-select-popover .options-list .option .hint {
+        font-size: 12px;
+        color: #cccccc; }
+    .qing-select-popover .options-list .hidden-size,
+    .qing-select-popover .options-list .no-options,
+    .qing-select-popover .options-list .loading-message {
+      height: 40px;
+      line-height: 39px;
+      font-size: 14px;
+      color: #cccccc;
+      padding: 0 10px;
+      text-align: center; }
+    .qing-select-popover .options-list.loading .option, .qing-select-popover .options-list.loading .hidden-size, .qing-select-popover .options-list.loading .no-options {
+      display: none; }

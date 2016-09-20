@@ -5,7 +5,7 @@ class Option extends QingModule
     @value = option[1].toString()
     @data = {}
 
-    if option.length > 2 && $.isArray(option[2])
+    if option.length > 2 && $.isPlainObject(option[2])
       $.each option[2], (key, value) =>
         key = key.replace(/^data-/, '').split('-')
         # camel case format

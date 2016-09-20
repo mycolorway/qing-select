@@ -40,11 +40,19 @@ class ResultBox extends QingModule
     @el.on 'click', '.link-clear', (e) =>
       return if @disabled
       @trigger 'clearClick'
+      false
 
     @el.on 'keydown', (e) =>
       return if @disabled
-      if e.which in [13, 38, 40]
-        @trigger 'click'
+      if e.which == 13
+        @trigger 'enterPress'
+        false
+      else if e.which == 38
+        @trigger 'arrowPress', ['up']
+        false
+      else if e.which == 40
+        @trigger 'arrowPress', ['down']
+        false
 
   setSelected: (selected) ->
     return if selected == @selected
@@ -73,6 +81,10 @@ class ResultBox extends QingModule
     else
       @el.attr 'tabindex', '0'
     @disabled = disabled
+    @
+
+  focus: ->
+    @el.focus()
     @
 
 module.exports = ResultBox

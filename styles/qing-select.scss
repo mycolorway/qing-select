@@ -1,6 +1,236 @@
 
 .qing-select {
-  border: 1px solid #cccccc;
-  padding: 10px;
-  text-align: center;
-}
+  position: relative;
+
+  $result-box-height: 40px;
+  .result-box {
+    position: relative;
+    box-sizing: border-box;
+    height: $result-box-height;
+    line-height: $result-box-height - 2px;
+    padding: 0 10px;
+    background: #FFFFFF;
+    border: 1px solid #DFDFDF;
+    border-radius: 2px;
+    font-size: 16px;
+    transition: border-color 400ms, box-shadow 400ms;
+    cursor: pointer;
+
+    &:hover {
+      border-color: #ACC6E4;
+    }
+
+    &.active,
+    &:focus {
+      border-color: #ACC6E4;
+      box-shadow: 0px 0px 4px 0px rgba(#4A90E2, 0.5);
+      outline: none;
+    }
+
+    .placeholder {
+      display: none;
+      color: #9b9b9b;
+    }
+
+    .icon-expand,
+    .link-clear {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-style: normal;
+      width: $result-box-height - 2px;
+      height: $result-box-height - 2px;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 18px;
+      color: #9b9b9b;
+    }
+
+    .link-clear {
+      display: block;
+      font-size: 16px;
+      text-decoration: none;
+      outline: none;
+
+      &:hover {
+        color: #4a4a4a;
+      }
+    }
+
+    &.empty {
+      .placeholder, .icon-expand {
+        display: block;
+      }
+
+      .result, .link-clear {
+        display: none;
+      }
+    }
+  } // end of .result-box
+
+  .multiple-result-box {
+    display: flex;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap;
+
+    $option-height: 32px;
+
+    .selected-option,
+    .link-add {
+      display: flex;
+      align-items: center;
+      align-content: center;
+      flex: 0 0 auto;
+      padding: 0 8px;
+      margin: 0 5px 5px 0;
+      height: $option-height;
+      line-height: normal;
+      background: #f6f6f6;
+      border-radius: 2px;
+      color: #4a4a4a;
+      font-size: 14px;
+      text-decoration: none;
+      outline: none;
+
+      .icon-remove {
+        font-style: normal;
+        margin: 0 0 0 5px;
+        color: #9b9b9b;
+      }
+
+      &:hover {
+        background: #f3f3f3;
+
+        .icon-remove {
+          color: #4a4a4a;
+        }
+      }
+
+      &:focus {
+        box-shadow: 0px 0px 2px 0px rgba(#000000, 0.4);
+      }
+    }
+
+    .link-add {
+      padding: 0 10px 0 8px;
+
+      .icon-add {
+        font-style: normal;
+        font-size: 16px;
+        margin: 0 2px 0 0;
+      }
+    }
+  }
+} // end of .qing-select
+
+.qing-select-popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  box-shadow: 0 0 6px 0 rgba(0,0,0,0.2);
+  box-sizing: border-box;
+
+  $border-color: #eeeeee;
+  $option-height: 40px;
+
+  .search-box {
+    position: relative;
+    border-bottom: 1px solid $border-color;
+
+    &.hidden {
+      display: none;
+    }
+
+    .text-field {
+      display: block;
+      width: 100%;
+      height: $option-height;
+      line-height: 20px;
+      border: none;
+      padding: 10px 40px;
+      box-sizing: border-box;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .icon-search {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      width: $option-height;
+      height: $option-height;
+      line-height: $option-height;
+      text-align: center;
+    }
+  }
+
+  .options-list {
+    max-height: 8 * $option-height;
+    overflow-y: auto;
+
+    .option {
+      display: flex;
+      height: $option-height;
+      line-height: $option-height - 1px;
+      border-bottom: 1px solid $border-color;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      box-sizing: border-box;
+
+      &:hover {
+        background: #f6f6f6;
+      }
+
+      &.highlighted {
+        background: #f6f6f6;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .left,
+      .right {
+        flex: 1 0 auto;
+        padding: 0 10px;
+      }
+
+      .right {
+        text-align: right;
+      }
+
+      .name {
+        font-size: 14px;
+        color: #4a4a4a;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: #cccccc;
+      }
+    }
+
+    .hidden-size,
+    .no-options,
+    .loading-message {
+      height: $option-height;
+      line-height: $option-height - 1px;
+      font-size: 14px;
+      color: #cccccc;
+      padding: 0 10px;
+      text-align: center;
+    }
+
+    &.loading {
+      .option, .hidden-size, .no-options {
+        display: none;
+      }
+    }
+  }
+} // end of .qing-select-popover

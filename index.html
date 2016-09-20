@@ -6,20 +6,98 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link media="all" rel="stylesheet" type="text/css" href="dist/qing-select.css">
+	<style type="text/css" media="all">
+		body {
+				margin: 0;
+				padding: 0;
+		}
+
+		.wrapper {
+				width: 400px;
+				margin: 50px auto;
+		}
+</style>
+
 
 	<script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
 	<script type="text/javascript" src="node_modules/qing-module/dist/qing-module.js"></script>
+	<!-- <script type="text/javascript" src="node_modules/sinon/pkg/sinon.js"></script> -->
 	<script type="text/javascript" src="dist/qing-select.js"></script>
 	<script type="text/javascript">
-		$(function() {
-      var qingSelect = new QingSelect({
-        el: '.test-el'
-      });
+	$(function() {
+		// var server = sinon.fakeServer.create({
+		// 	respondImmediately: true
+		// });
+		// server.respondWith([
+		// 	200,
+		// 	{"Content-Type": "application/json"},
+		// 	JSON.stringify({
+		// 		options:[
+		// 			['Audi', 'audi'],
+		// 			['Acura', 'acura'],
+		// 			['BMW', 'bmw']
+		// 		],
+		// 		totalSize: 100
+		// 	})
+		// ]);
+
+		var selectOne = new QingSelect({
+			el: $('#select-one'),
+			placeholder: 'Please Select...',
+			// remote: {
+			// 	url: 'api/path'
+			// },
+			// totalOptionSize: 100
 		});
+
+		selectOne.on('change', function(e, selection) {
+			console.log(selection, selectOne.el.val());
+		});
+
+		var selectTwo = new QingSelect({
+			el: $('#select-two')
+		});
+
+		selectTwo.on('change', function(e, selection) {
+			console.log(selection, selectTwo.el.val());
+		});
+	});
 	</script>
 
 </head>
 <body>
-  <div class="test-el"></div>
+	<div class="wrapper">
+			<div class="demo-one">
+					<h3>Demo one: single select</h3>
+					<select id="select-one">
+						<option value="volvo" data-hint="car 1">Volvo</option>
+						<option value="saab" data-hint="car 2">Saab</option>
+						<option value="mercedes" data-hint="car 3">Mercedes</option>
+						<option value="audi" data-hint="car 4" selected>Audi</option>
+						<option value="acura" data-hint="car 5">Acura</option>
+						<option value="aston martin" data-hint="car 6">Aston Martin</option>
+						<option value="bentley" data-hint="car 7">Bentley</option>
+						<option value="bmw" data-hint="car 8">BMW</option>
+						<option value="buick" data-hint="car 9">Buick</option>
+						<option value="chevrolet" data-hint="car 10">Chevrolet</option>
+					</select>
+			</div>
+
+			<div class="demo-two">
+					<h3>Demo Two: multiple select</h3>
+					<select id="select-two" multiple="true">
+						<option value="volvo" data-hint="car 1">Volvo</option>
+						<option value="saab" data-hint="car 2">Saab</option>
+						<option value="mercedes" data-hint="car 3">Mercedes</option>
+						<option value="audi" data-hint="car 4" selected>Audi</option>
+						<option value="acura" data-hint="car 5">Acura</option>
+						<option value="aston martin" data-hint="car 6">Aston Martin</option>
+						<option value="bentley" data-hint="car 7">Bentley</option>
+						<option value="bmw" data-hint="car 8">BMW</option>
+						<option value="buick" data-hint="car 9">Buick</option>
+						<option value="chevrolet" data-hint="car 10">Chevrolet</option>
+					</select>
+			</div>
+	</div>
 </body>
 </html>

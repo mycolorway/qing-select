@@ -13,15 +13,15 @@ class DataProvider extends QingModule
 
     @remote = @opts.remote
     @options = (new Option(option) for option in @opts.options)
-    @totalSize = @opts.totalSize
+    @totalOptionSize = @opts.totalOptionSize
 
   _fetch: (value, callback) ->
     return if !@remote || @trigger('beforeFetch') == false
 
     onFetch = (result) =>
-      options = (new Option(option) for option in result.options)
-      @trigger 'fetch', [options, result.totalSize, value]
-      callback?.call @, options, result.totalSize
+      result.options = (new Option(option) for option in result.options)
+      @trigger 'fetch', [result, value]
+      callback?.call @, result
 
     $.ajax
       url: @remote.url
@@ -32,22 +32,31 @@ class DataProvider extends QingModule
       onFetch result
 
   filter: (value, callback) ->
-    afterFilter = (options, totalSize) =>
-      options = options.filter (option, i) =>
-        !option.selected
-      callback?.call @, options, totalSize
-      @trigger 'filter', [options, totalSize, value]
+    afterFilter = (result) =>
+      @trigger 'beforeFilterComplete', [result, value]
+      @trigger 'filter', [result, value]
+      callback?.call @, result
 
     if @remote
       if value
         @_fetch value, afterFilter
       else
-        afterFilter @options, @totalSize
+        afterFilter
+          options: @options
+          totalSize: @totalOptionSize
     else
       options = []
       $.each @options, (i, option) ->
         options.push(option) if option.match(value)
-      afterFilter options, options.length
+      afterFilter
+        options: options
+        totalSize: options.length
     null
+
+  getOption: (value) ->
+    result = @options.filter (option, i) =>
+      option.value == value
+    if result.length > 0 then result[0] else null
+
 
 module.exports = DataProvider

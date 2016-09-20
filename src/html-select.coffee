@@ -21,9 +21,10 @@ class HtmlSelect extends QingModule
     options
 
   selectOption: (option) ->
-    unless @el.find("option[value='#{option.value}']").length > 0
-      @el.append @_renderOption(option)
-    @el.val option.value
+    $option = @el.find("option[value='#{option.value}']")
+    unless $option.length > 0
+      $option = @_renderOption(option).appendTo @el
+    $option.prop 'selected', true
     @
 
   unselectOption: (option) ->

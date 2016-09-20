@@ -1,4 +1,5 @@
 DataProvider = require './models/data-provider.coffee'
+Option = require './models/option.coffee'
 HtmlSelect = require './html-select.coffee'
 MultipleResultBox = require './multiple-result-box.coffee'
 ResultBox = require './result-box.coffee'
@@ -10,15 +11,22 @@ class QingSelect extends QingModule
 
   @opts:
     el: null
+    renderer: null
+    opitonRenderer: null
     remote: false
-    totalOptionSize: null
+    totalOptionSize: 0
     maxListSize: 20
+    popoverOffset: 6
+    popoverAppendTo: 'body'
+    searchableSize: 8
     locales: null
 
   @locales:
     searchPlaceholder: 'Search'
+    addSelected: 'New'
     noOptions: 'Found nothing.'
-    hiddenSize: '{{ size }} more records are hidden, please search for them.'
+    hiddenSize: '{{ size }} more records are hidden, please search for them'
+    loading: 'Loading...'
 
   constructor: (opts) ->
     super
@@ -34,10 +42,12 @@ class QingSelect extends QingModule
     @_initChildComponents()
     @_bind()
 
+    if $.isFunction(@opts.renderer)
+      @opts.renderer.call @, @wrapper
+
   _render: ->
     @wrapper = $('<div class="qing-select"></div>').insertBefore @el
-    @el.addClass ' qing-select'
-      .appendTo @wrapper
+    @el.hide().appendTo @wrapper
       .data 'qingSelect', @
 
   _initChildComponents: ->
@@ -48,7 +58,7 @@ class QingSelect extends QingModule
     @dataProvider = new DataProvider
       remote: @opts.remote
       options: options
-      totalOptionSize: @opts.totalOptionSize || options.length
+      totalOptionSize: @opts.totalOptionSize
 
     @multiple = @el.is '[multiple]'
     selected = @dataProvider.options.filter (option) -> option.selected
@@ -57,6 +67,7 @@ class QingSelect extends QingModule
         wrapper: @wrapper
         placeholder: @_placeholder()
         selected: selected
+        locales: @locales
     else
       new ResultBox
         wrapper: @wrapper
@@ -68,8 +79,27 @@ class QingSelect extends QingModule
       dataProvider: @dataProvider
       locales: @locales
       maxListSize: @opts.maxListSize
+      searchableSize: @opts.searchableSize
+      appendTo: @opts.popoverAppendTo
+      optionRenderer: @opts.optionRenderer
 
   _bind: ->
+    @resultBox.on 'enterPress', (e) =>
+      if @active && !@popover.searchable &&
+          (highlighted = @popover.optionsList.highlighted)
+        @selectOption highlighted.data('option')
+      else
+        @_setActive !@active
+
+    @resultBox.on 'arrowPress', (e, direction) =>
+      if @active && !@popover.searchable
+        if direction == 'up'
+          @popover.optionsList.highlightPrevOption()
+        else
+          @popover.optionsList.highlightNextOption()
+      else
+        @_setActive !@active
+
     if @multiple
       @resultBox.on 'addClick', (e) =>
         @_setActive true
@@ -87,6 +117,23 @@ class QingSelect extends QingModule
     @popover.on 'select', (e, option) =>
       @selectOption option
 
+    @popover.on 'show', (e) =>
+      @popover.el.css @_popoverPosition()
+
+    @popover.searchBox.on 'escapePress', (e) =>
+      @_setActive false
+
+    @dataProvider.on 'beforeFilterComplete', (e, result, value) =>
+      selected = @htmlSelect.getValue() || []
+      selected = [selected] unless $.isArray(selected)
+      if @multiple
+        result.options = result.options.filter (option, i) ->
+          !(option.value in selected)
+        result.totalSize -= selected.length
+      else
+        for option in result.options
+          option.selected = (option.value in selected)
+
   _placeholder: ->
     @placeholder ||= if @opts.placeholder
       @opts.placeholder
@@ -100,26 +147,52 @@ class QingSelect extends QingModule
     @resultBox.setActive active
     @popover.setActive active
 
-    $(document).off '.qing-select'
+    $(document).off 'mousedown.qing-select'
     if active
-      $(document).one 'mousedown.qing-select', (e) =>
-        return if e.target == @el[0] || $.contains(@el[0], e.target)
+      $(document).on 'mousedown.qing-select', (e) =>
+        return if $.contains(@wrapper[0], e.target) ||
+          $.contains(@popover.el[0], e.target)
         @_setActive false
+        $(document).off 'mousedown.qing-select'
+    else
+      @resultBox.focus()
 
     @active = active
     @
 
+  _popoverPosition: ->
+    resultBoxPosition = @resultBox.el.offset()
+    resultBoxHeight = @resultBox.el.outerHeight()
+    resultBoxWidth = @resultBox.el.outerWidth()
+
+    top: resultBoxPosition.top + resultBoxHeight + @opts.popoverOffset
+    left: resultBoxPosition.left
+    minWidth: resultBoxWidth
+
   selectOption: (option) ->
+    unless option instanceof Option
+      option = @dataProvider.getOption option
+    option.selected = true
+
     if @multiple
       @resultBox.addSelected option
     else
+      if oldOption = @resultBox.selected
+        oldOption.selected = false
+        @htmlSelect.unselectOption oldOption
       @resultBox.setSelected option
 
     @htmlSelect.selectOption option
     @_setActive false
+    @dataProvider.filter ''
+    @trigger 'change', [@resultBox.selected]
     @
 
   unselectOption: (option) ->
+    unless option instanceof Option
+      option = @dataProvider.getOption option
+    option.selected = false
+
     if @multiple
       @resultBox.removeSelected option
     else
@@ -127,11 +200,16 @@ class QingSelect extends QingModule
 
     @htmlSelect.unselectOption option
     @_setActive false
+    @dataProvider.filter ''
+    @trigger 'change', [@resultBox.selected]
     @
 
   destroy: ->
-    @el.empty()
+    @el.insertBefore @wrapper
+      .show()
       .removeData 'qingSelect'
+    @popover.el.remove()
+    @wrapper.remove()
     $(document).off '.qing-select'
     @
 

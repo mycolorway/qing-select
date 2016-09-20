@@ -5,6 +5,7 @@ class MultipleResultBox extends QingModule
     wrapper: null
     placeholder: ''
     selected: false
+    locales: null
 
   constructor: (opts) ->
     super
@@ -23,8 +24,11 @@ class MultipleResultBox extends QingModule
 
   _render: ->
     @el = $("""
-      <div class="result-box">
-        <a class="link-add" href="javascript:;" tabindex="0">+</a>
+      <div class="multiple-result-box">
+        <a class="link-add" href="javascript:;">
+          <i class="icon-add">&#65291;</i>
+          <span>#{@opts.locales.addSelected}</span>
+        </a>
       </div>
     """).appendTo @wrapper
     @linkAdd = @el.find '.link-add'
@@ -39,19 +43,35 @@ class MultipleResultBox extends QingModule
       $option = $ e.currentTarget
       @trigger 'optionClick', [$option.data('option')]
 
+    @el.on 'keydown', '.selected-option', (e) =>
+      return if @disabled
+      $option = $ e.currentTarget
+      if e.which == 13
+        @trigger 'optionClick', [$option.data('option')]
+        false
+
     @linkAdd.on 'keydown', (e) =>
       return if @disabled
-      if e.which in [13, 38, 40]
-        @trigger 'addClick'
+      if e.which == 13
+        @trigger 'enterPress'
+        false
+      else if e.which == 38
+        @trigger 'arrowPress', ['up']
+        false
+      else if e.which == 40
+        @trigger 'arrowPress', ['down']
+        false
 
   addSelected: (option) ->
     if $.isArray option
       @addSelected(opt) for opt in option
       return
-    
+
     $("""
-      <a href="javascript:;" class="selected-option" data-value="#{option.value}">
-        #{option.name}
+      <a href="javascript:;" class="selected-option"
+        data-value="#{option.value}">
+        <span class="name">#{option.name}</span>
+        <i class="icon-remove">&#10005;</i>
       </a>
     """)
       .data 'option', option
@@ -79,6 +99,10 @@ class MultipleResultBox extends QingModule
     return if disabled == @disabled
     @el.toggleClass 'disabled', disabled
     @disabled = disabled
+    @
+
+  focus: ->
+    @linkAdd.focus()
     @
 
 module.exports = MultipleResultBox

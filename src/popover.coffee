@@ -8,6 +8,8 @@ class Popover extends QingModule
     dataProvider: null
     locales: null
     maxListSize: 0
+    searchableSize: 8
+    opitonRenderer: null
 
   constructor: (opts) ->
     super
@@ -18,33 +20,44 @@ class Popover extends QingModule
 
     @active = false
     @dataProvider = @opts.dataProvider
+    @searchable = @dataProvider.totalOptionSize > @dataProvider.options.length ||
+      @dataProvider.options.length > @opts.searchableSize
     @_render()
     @_initChildComponents()
     @_bind()
 
   _render: ->
-    @el = $('<div class="popover">').appendTo @wrapper
+    @el = $('<div class="qing-select-popover">')
 
   _initChildComponents: ->
     @searchBox = new SearchBox
       wrapper: @el
       placeholder: @opts.locales.searchPlaceholder
+      hidden: !@searchable
 
     @optionsList = new OptionsList
       wrapper: @el
       locales: @opts.locales
       options: @dataProvider.options
+      optionRenderer: @opts.optionRenderer
       totalOptionSize: @dataProvider.totalOptionSize
       maxListSize: @opts.maxListSize
 
   _bind: ->
     @searchBox.on 'change', (e, val) =>
-      @dataProvider.filter val, (options, totalSize) =>
-        @optionsList.renderOptions options, totalSize
+      @optionsList.setLoading true
+      @dataProvider.filter val
+
+    @dataProvider.on 'filter', (e, result, value) =>
+      @optionsList.setLoading false
+      @optionsList.renderOptions result.options, result.totalSize
 
     @searchBox.on 'enterPress', (e) =>
       if @optionsList.highlighted
         @_selectOption @optionsList.highlighted
+
+    @searchBox.on 'escapePress', (e) =>
+      @setActive false
 
     @searchBox.on 'arrowPress', (e, direction) =>
       if direction == 'up'
@@ -57,14 +70,23 @@ class Popover extends QingModule
 
   _selectOption: ($option) ->
     option = $option.data 'option'
-    @searchBox.setValue ''
     @optionsList.setHighlighted option.value
+    @searchBox.textField.val ''
     @trigger 'select', [option]
 
   setActive: (active) ->
     return if active == @active
-    @el.toggleClass 'active', active
-    @searchBox.focus()
+
+    if active
+      @el.addClass('active')
+        .appendTo @opts.appendTo
+      @searchBox.focus()
+      @trigger 'show'
+    else
+      @el.removeClass('active')
+        .detach()
+      @trigger 'hide'
+
     @active = active
     @
 

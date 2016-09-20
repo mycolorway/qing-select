@@ -5,6 +5,7 @@ class OptionsList extends QingModule
     wrapper: null
     locales: null
     options: null
+    opitonRenderer: null
     totalOptionSize: null
     maxListSize: 0
 
@@ -35,30 +36,35 @@ class OptionsList extends QingModule
 
   renderOptions: (options = [], totalOptionSize) ->
     options = options.slice 0, @opts.maxListSize
-    @el.empty()
+    @el.empty().css('min-height', 0)
     @highlighted = false
 
     if options.length > 0
       @el.append(@_optionEl(option) for option in options)
-    else if !totalOptionSize
+      if totalOptionSize > options.length
+        @_renderHiddenSize(totalOptionSize - options.length)
+    else
       @_renderEmpty()
 
-    if totalOptionSize && totalOptionSize > options.length
-      @_renderHiddenSize(totalOptionSize - options.length)
-
-    @setHighlighted @el.find('.option:first')
+    @setHighlighted(@el.find('.option:first')) unless @highlighted
 
   _optionEl: (option) ->
     $optionEl = $("""
       <div class="option">
-        <span class="label"></span>
-        <span class="hint"></span>
+        <div class="left">
+          <span class="name"></span>
+        </div>
+        <div class="right">
+          <span class="hint"></span>
+        </div>
       </div>
     """).data('option', option)
-    $optionEl.find('.label').text(option.name)
+    $optionEl.find('.name').text(option.name)
     $optionEl.find('.hint').text(option.data.hint) if option.data.hint
     $optionEl.attr 'data-value', option.value
     $optionEl.data 'option', option
+
+    @setHighlighted($optionEl) if option.selected
 
     if $.isFunction @opts.opitonRenderer
       @opts.opitonRenderer.call(@, $optionEl, option)
@@ -75,6 +81,20 @@ class OptionsList extends QingModule
     @el.append """
       <div class="hidden-size">#{text}</div>
     """
+
+  setLoading: (loading) ->
+    return if loading == @loading
+    @el.toggleClass 'loading', loading
+
+    if loading
+      @el.append """
+        <div class="loading-message">#{@opts.locales.loading}</div>
+      """
+    else
+      @el.find('.loading').remove()
+
+    @loading = loading
+    @
 
   setHighlighted: (highlighted) ->
     unless typeof highlighted == 'object'
@@ -101,6 +121,5 @@ class OptionsList extends QingModule
       $prevOption = @el.find('.option:first')
 
     @setHighlighted($prevOption) if $prevOption.length > 0
-
 
 module.exports = OptionsList
