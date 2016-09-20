@@ -1,6 +1,8 @@
 
 .qing-select {
+  display: inline-block;
   position: relative;
+  width: 340px;
 
   $result-box-height: 40px;
   .result-box {

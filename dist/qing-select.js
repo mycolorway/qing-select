@@ -434,6 +434,7 @@ OptionsList = (function(superClass) {
     wrapper: null,
     locales: null,
     options: null,
+    opitonRenderer: null,
     totalOptionSize: null,
     maxListSize: 0
   };
@@ -601,7 +602,8 @@ Popover = (function(superClass) {
     dataProvider: null,
     locales: null,
     maxListSize: 0,
-    searchableSize: 8
+    searchableSize: 8,
+    opitonRenderer: null
   };
 
   function Popover(opts) {
@@ -633,6 +635,7 @@ Popover = (function(superClass) {
       wrapper: this.el,
       locales: this.opts.locales,
       options: this.dataProvider.options,
+      optionRenderer: this.opts.optionRenderer,
       totalOptionSize: this.dataProvider.totalOptionSize,
       maxListSize: this.opts.maxListSize
     });
@@ -939,6 +942,7 @@ QingSelect = (function(superClass) {
   QingSelect.opts = {
     el: null,
     renderer: null,
+    opitonRenderer: null,
     remote: false,
     totalOptionSize: 0,
     maxListSize: 20,
@@ -969,7 +973,7 @@ QingSelect = (function(superClass) {
     this._initChildComponents();
     this._bind();
     if ($.isFunction(this.opts.renderer)) {
-      this.opts.renderer.call(this, this.el);
+      this.opts.renderer.call(this, this.wrapper);
     }
   }
 
@@ -1009,7 +1013,8 @@ QingSelect = (function(superClass) {
       locales: this.locales,
       maxListSize: this.opts.maxListSize,
       searchableSize: this.opts.searchableSize,
-      appendTo: this.opts.popoverAppendTo
+      appendTo: this.opts.popoverAppendTo,
+      optionRenderer: this.opts.optionRenderer
     });
   };
 

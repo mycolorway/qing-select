@@ -9,7 +9,9 @@
  * Date: 2016-09-20
  */
 .qing-select {
-  position: relative; }
+  display: inline-block;
+  position: relative;
+  width: 340px; }
   .qing-select .result-box {
     position: relative;
     box-sizing: border-box;
