@@ -1083,7 +1083,7 @@ QingSelect = (function(superClass) {
         return _this._setActive(false);
       };
     })(this));
-    return this.dataProvider.on('beforeFilterComplete', (function(_this) {
+    this.dataProvider.on('beforeFilterComplete', (function(_this) {
       return function(e, result, value) {
         var j, len, option, ref, ref1, results, selected;
         selected = _this.htmlSelect.getValue() || [];
@@ -1105,6 +1105,11 @@ QingSelect = (function(superClass) {
           }
           return results;
         }
+      };
+    })(this));
+    return this.on('change', (function(_this) {
+      return function(e) {
+        return _this.el.trigger('change');
       };
     })(this));
   };

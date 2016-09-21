@@ -134,6 +134,9 @@ class QingSelect extends QingModule
         for option in result.options
           option.selected = (option.value in selected)
 
+    @on 'change', (e) =>
+      @el.trigger 'change'
+
   _placeholder: ->
     @placeholder ||= if @opts.placeholder
       @opts.placeholder
