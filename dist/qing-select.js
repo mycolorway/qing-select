@@ -523,7 +523,7 @@ OptionsList = (function(superClass) {
 
   OptionsList.prototype._renderHiddenSize = function(size) {
     var text;
-    text = this.opts.locales.hiddenSize.replace(/\{\{\s?size\s?\}\}/g, size);
+    text = this.opts.locales.hiddenSize.replace(/\__size__\}/g, size);
     return this.el.append("<div class=\"hidden-size\">" + text + "</div>");
   };
 
@@ -956,7 +956,7 @@ QingSelect = (function(superClass) {
     searchPlaceholder: 'Search',
     addSelected: 'New',
     noOptions: 'Found nothing.',
-    hiddenSize: '{{ size }} more records are hidden, please search for them',
+    hiddenSize: '__size__ more records are hidden, please search for them',
     loading: 'Loading...'
   };
 

@@ -25,7 +25,7 @@ class QingSelect extends QingModule
     searchPlaceholder: 'Search'
     addSelected: 'New'
     noOptions: 'Found nothing.'
-    hiddenSize: '{{ size }} more records are hidden, please search for them'
+    hiddenSize: '__size__ more records are hidden, please search for them'
     loading: 'Loading...'
 
   constructor: (opts) ->

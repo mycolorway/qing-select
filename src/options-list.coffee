@@ -77,7 +77,7 @@ class OptionsList extends QingModule
     """
 
   _renderHiddenSize: (size) ->
-    text = @opts.locales.hiddenSize.replace(/\{\{\s?size\s?\}\}/g, size)
+    text = @opts.locales.hiddenSize.replace(/\__size__\}/g, size)
     @el.append """
       <div class="hidden-size">#{text}</div>
     """
