@@ -80,8 +80,8 @@ class Popover extends QingModule
     if active
       @el.addClass('active')
         .appendTo @opts.appendTo
-      @searchBox.focus()
       @trigger 'show'
+      @searchBox.focus()
     else
       @el.removeClass('active')
         .detach()

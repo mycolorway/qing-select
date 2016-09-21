@@ -150,8 +150,9 @@ class QingSelect extends QingModule
     $(document).off 'mousedown.qing-select'
     if active
       $(document).on 'mousedown.qing-select', (e) =>
-        return if $.contains(@wrapper[0], e.target) ||
-          $.contains(@popover.el[0], e.target)
+        return if ($.contains(@wrapper[0], e.target) ||
+          $.contains(@popover.el[0], e.target)) &&
+          !$(e.target).is('.multiple-result-box')
         @_setActive false
         $(document).off 'mousedown.qing-select'
     else

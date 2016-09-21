@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-09-20
+ * Date: 2016-09-21
  */
 .qing-select {
   display: inline-block;
@@ -32,7 +32,7 @@
       outline: none; }
     .qing-select .result-box .placeholder {
       display: none;
-      color: #9b9b9b; }
+      color: #cccccc; }
     .qing-select .result-box .icon-expand,
     .qing-select .result-box .link-clear {
       display: none;
@@ -100,6 +100,7 @@
         margin: 0 2px 0 0; }
 
 .qing-select-popover {
+  display: none;
   position: absolute;
   top: 0;
   left: 0;
@@ -107,6 +108,8 @@
   border: 1px solid #dddddd;
   box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.2);
   box-sizing: border-box; }
+  .qing-select-popover.active {
+    display: block; }
   .qing-select-popover .search-box {
     position: relative;
     border-bottom: 1px solid #eeeeee; }

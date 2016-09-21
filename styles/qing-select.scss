@@ -31,7 +31,7 @@
 
     .placeholder {
       display: none;
-      color: #9b9b9b;
+      color: #cccccc;
     }
 
     .icon-expand,
@@ -128,6 +128,7 @@
 } // end of .qing-select
 
 .qing-select-popover {
+  display: none;
   position: absolute;
   top: 0;
   left: 0;
@@ -135,6 +136,10 @@
   border: 1px solid #dddddd;
   box-shadow: 0 0 6px 0 rgba(0,0,0,0.2);
   box-sizing: border-box;
+
+  &.active {
+    display: block;
+  }
 
   $border-color: #eeeeee;
   $option-height: 40px;
