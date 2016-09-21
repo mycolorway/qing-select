@@ -523,7 +523,7 @@ OptionsList = (function(superClass) {
 
   OptionsList.prototype._renderHiddenSize = function(size) {
     var text;
-    text = this.opts.locales.hiddenSize.replace(/\__size__\}/g, size);
+    text = this.opts.locales.hiddenSize.replace(/__size__/g, size);
     return this.el.append("<div class=\"hidden-size\">" + text + "</div>");
   };
 
