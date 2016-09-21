@@ -35,7 +35,7 @@
       color: #cccccc; }
     .qing-select .result-box .icon-expand,
     .qing-select .result-box .link-clear {
-      display: none;
+      display: block;
       position: absolute;
       top: 0;
       right: 0;
@@ -47,12 +47,16 @@
       font-size: 18px;
       color: #9b9b9b; }
     .qing-select .result-box .link-clear {
-      display: block;
+      display: none;
       font-size: 16px;
       text-decoration: none;
       outline: none; }
       .qing-select .result-box .link-clear:hover {
         color: #4a4a4a; }
+    .qing-select .result-box.clearable .link-clear {
+      display: block; }
+    .qing-select .result-box.clearable .icon-expand {
+      display: none; }
     .qing-select .result-box.empty .placeholder, .qing-select .result-box.empty .icon-expand {
       display: block; }
     .qing-select .result-box.empty .result, .qing-select .result-box.empty .link-clear {

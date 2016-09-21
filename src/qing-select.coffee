@@ -73,6 +73,7 @@ class QingSelect extends QingModule
         wrapper: @wrapper
         placeholder: @_placeholder()
         selected: if selected.length > 0 then selected[0] else false
+        clearable: !!@htmlSelect.getBlankOption()
 
     @popover = new Popover
       wrapper: @wrapper

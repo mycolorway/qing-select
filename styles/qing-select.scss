@@ -36,7 +36,7 @@
 
     .icon-expand,
     .link-clear {
-      display: none;
+      display: block;
       position: absolute;
       top: 0;
       right: 0;
@@ -50,13 +50,23 @@
     }
 
     .link-clear {
-      display: block;
+      display: none;
       font-size: 16px;
       text-decoration: none;
       outline: none;
 
       &:hover {
         color: #4a4a4a;
+      }
+    }
+
+    &.clearable {
+      .link-clear {
+        display: block;
+      }
+
+      .icon-expand {
+        display: none;
       }
     }
 

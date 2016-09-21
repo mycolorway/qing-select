@@ -5,6 +5,7 @@ class ResultBox extends QingModule
     wrapper: null
     placeholder: ''
     selected: false
+    clearable: true
 
   constructor: (opts) ->
     super
@@ -31,6 +32,8 @@ class ResultBox extends QingModule
         </a>
       </div>
     """).appendTo @wrapper
+
+    @el.addClass('clearable') if @opts.clearable
 
   _bind: ->
     @el.on 'click', (e) =>

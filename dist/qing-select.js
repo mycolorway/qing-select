@@ -731,7 +731,8 @@ ResultBox = (function(superClass) {
   ResultBox.opts = {
     wrapper: null,
     placeholder: '',
-    selected: false
+    selected: false,
+    clearable: true
   };
 
   function ResultBox(opts) {
@@ -749,7 +750,10 @@ ResultBox = (function(superClass) {
   }
 
   ResultBox.prototype._render = function() {
-    return this.el = $("<div class=\"result-box\" tabindex=\"0\">\n  <div class=\"placeholder\">" + this.opts.placeholder + "</div>\n  <div class=\"result\"></div>\n  <i class=\"icon-expand\"><span>&#9662;</span></i>\n  <a class=\"link-clear\" href=\"javascript:;\" tabindex=\"-1\">\n    &#10005;\n  </a>\n</div>").appendTo(this.wrapper);
+    this.el = $("<div class=\"result-box\" tabindex=\"0\">\n  <div class=\"placeholder\">" + this.opts.placeholder + "</div>\n  <div class=\"result\"></div>\n  <i class=\"icon-expand\"><span>&#9662;</span></i>\n  <a class=\"link-clear\" href=\"javascript:;\" tabindex=\"-1\">\n    &#10005;\n  </a>\n</div>").appendTo(this.wrapper);
+    if (this.opts.clearable) {
+      return this.el.addClass('clearable');
+    }
   };
 
   ResultBox.prototype._bind = function() {
@@ -1013,7 +1017,8 @@ QingSelect = (function(superClass) {
     }) : new ResultBox({
       wrapper: this.wrapper,
       placeholder: this._placeholder(),
-      selected: selected.length > 0 ? selected[0] : false
+      selected: selected.length > 0 ? selected[0] : false,
+      clearable: !!this.htmlSelect.getBlankOption()
     });
     return this.popover = new Popover({
       wrapper: this.wrapper,

@@ -43,8 +43,7 @@
 		// ]);
 
 		var selectOne = new QingSelect({
-			el: $('#select-one'),
-			placeholder: 'Please Select...',
+			el: $('#select-one')
 			// remote: {
 			// 	url: 'api/path'
 			// },
@@ -71,6 +70,7 @@
 			<div class="demo-one">
 					<h3>Demo one: single select</h3>
 					<select id="select-one">
+						<option value="">Please select...</option>
 						<option value="volvo" data-hint="car 1">Volvo</option>
 						<option value="saab" data-hint="car 2">Saab</option>
 						<option value="mercedes" data-hint="car 3">Mercedes</option>
