@@ -949,6 +949,10 @@ Popover = require('./popover.coffee');
 QingSelect = (function(superClass) {
   extend(QingSelect, superClass);
 
+  function QingSelect() {
+    return QingSelect.__super__.constructor.apply(this, arguments);
+  }
+
   QingSelect.name = 'QingSelect';
 
   QingSelect.opts = {
@@ -972,8 +976,12 @@ QingSelect = (function(superClass) {
     loading: 'Loading...'
   };
 
-  function QingSelect(opts) {
-    QingSelect.__super__.constructor.apply(this, arguments);
+  QingSelect.prototype._setOptions = function(opts) {
+    QingSelect.__super__._setOptions.apply(this, arguments);
+    return $.extend(this.opts, QingSelect.opts, opts);
+  };
+
+  QingSelect.prototype._init = function() {
     this.el = $(this.opts.el);
     if (!(this.el.length > 0)) {
       throw new Error('QingSelect: option el is required');
@@ -985,9 +993,9 @@ QingSelect = (function(superClass) {
     this._initChildComponents();
     this._bind();
     if ($.isFunction(this.opts.renderer)) {
-      this.opts.renderer.call(this, this.wrapper);
+      return this.opts.renderer.call(this, this.wrapper);
     }
-  }
+  };
 
   QingSelect.prototype._render = function() {
     this.wrapper = $('<div class="qing-select"></div>').insertBefore(this.el);

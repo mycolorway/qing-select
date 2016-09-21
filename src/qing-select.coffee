@@ -28,9 +28,11 @@ class QingSelect extends QingModule
     hiddenSize: '__size__ more records are hidden, please search for them'
     loading: 'Loading...'
 
-  constructor: (opts) ->
+  _setOptions: (opts) ->
     super
+    $.extend @opts, QingSelect.opts, opts
 
+  _init: ->
     @el = $ @opts.el
     unless @el.length > 0
       throw new Error 'QingSelect: option el is required'
