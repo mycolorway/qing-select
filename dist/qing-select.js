@@ -531,10 +531,18 @@ OptionsList = (function(superClass) {
     if (loading === this.loading) {
       return;
     }
-    this.el.toggleClass('loading', loading);
     if (loading) {
-      this.el.append("<div class=\"loading-message\">" + this.opts.locales.loading + "</div>");
+      setTimeout((function(_this) {
+        return function() {
+          if (!_this.loading) {
+            return;
+          }
+          _this.el.addClass('loading');
+          return _this.el.append("<div class=\"loading-message\">" + _this.opts.locales.loading + "</div>");
+        };
+      })(this), 500);
     } else {
+      this.el.removeClass('loading');
       this.el.find('.loading').remove();
     }
     this.loading = loading;

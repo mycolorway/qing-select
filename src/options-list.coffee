@@ -84,13 +84,16 @@ class OptionsList extends QingModule
 
   setLoading: (loading) ->
     return if loading == @loading
-    @el.toggleClass 'loading', loading
-
     if loading
-      @el.append """
-        <div class="loading-message">#{@opts.locales.loading}</div>
-      """
+      setTimeout =>
+        return unless @loading
+        @el.addClass 'loading'
+        @el.append """
+          <div class="loading-message">#{@opts.locales.loading}</div>
+        """
+      , 500
     else
+      @el.removeClass 'loading'
       @el.find('.loading').remove()
 
     @loading = loading
