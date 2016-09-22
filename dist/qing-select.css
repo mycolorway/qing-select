@@ -15,9 +15,9 @@
   .qing-select .result-box {
     position: relative;
     box-sizing: border-box;
-    height: 40px;
-    line-height: 38px;
-    padding: 0 10px;
+    min-height: 40px;
+    line-height: 20px;
+    padding: 9px 38px 9px 10px;
     background: #FFFFFF;
     border: 1px solid #DFDFDF;
     border-radius: 2px;
@@ -33,6 +33,8 @@
     .qing-select .result-box .placeholder {
       display: none;
       color: #cccccc; }
+    .qing-select .result-box .result {
+      overflow: hidden; }
     .qing-select .result-box .icon-expand,
     .qing-select .result-box .link-clear {
       display: block;
@@ -42,6 +44,7 @@
       font-style: normal;
       width: 38px;
       height: 38px;
+      line-height: 38px;
       box-sizing: border-box;
       text-align: center;
       font-size: 18px;

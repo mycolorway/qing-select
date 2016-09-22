@@ -59,7 +59,7 @@ class OptionsList extends QingModule
         </div>
       </div>
     """).data('option', option)
-    $optionEl.find('.name').text(option.name)
+    $optionEl.find('.name').text(option.data.label || option.name)
     $optionEl.find('.hint').text(option.data.hint) if option.data.hint
     $optionEl.attr 'data-value', option.value
     $optionEl.data 'option', option

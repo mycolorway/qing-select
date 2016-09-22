@@ -8,9 +8,9 @@
   .result-box {
     position: relative;
     box-sizing: border-box;
-    height: $result-box-height;
-    line-height: $result-box-height - 2px;
-    padding: 0 10px;
+    min-height: $result-box-height;
+    line-height: 20px;
+    padding: 9px 38px 9px 10px;
     background: #FFFFFF;
     border: 1px solid #DFDFDF;
     border-radius: 2px;
@@ -34,6 +34,10 @@
       color: #cccccc;
     }
 
+    .result {
+      overflow: hidden;
+    }
+
     .icon-expand,
     .link-clear {
       display: block;
@@ -43,6 +47,7 @@
       font-style: normal;
       width: $result-box-height - 2px;
       height: $result-box-height - 2px;
+      line-height: $result-box-height - 2px;
       box-sizing: border-box;
       text-align: center;
       font-size: 18px;

@@ -502,7 +502,7 @@ OptionsList = (function(superClass) {
   OptionsList.prototype._optionEl = function(option) {
     var $optionEl;
     $optionEl = $("<div class=\"option\">\n  <div class=\"left\">\n    <span class=\"name\"></span>\n  </div>\n  <div class=\"right\">\n    <span class=\"hint\"></span>\n  </div>\n</div>").data('option', option);
-    $optionEl.find('.name').text(option.name);
+    $optionEl.find('.name').text(option.data.label || option.name);
     if (option.data.hint) {
       $optionEl.find('.hint').text(option.data.hint);
     }
