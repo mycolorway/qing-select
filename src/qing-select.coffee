@@ -220,4 +220,12 @@ class QingSelect extends QingModule
     $(document).off '.qing-select'
     @
 
+QingSelect.extend
+  DataProvider: DataProvider
+  Option: Option
+  HtmlSelect: HtmlSelect
+  MultipleResultBox: MultipleResultBox
+  ResultBox: ResultBox
+  Popover: Popover
+
 module.exports = QingSelect
