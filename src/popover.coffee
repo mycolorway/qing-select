@@ -38,7 +38,7 @@ class Popover extends QingModule
     @optionsList = new OptionsList
       wrapper: @el
       locales: @opts.locales
-      options: @dataProvider.options
+      # options: @dataProvider.options
       optionRenderer: @opts.optionRenderer
       totalOptionSize: @dataProvider.totalOptionSize
       maxListSize: @opts.maxListSize

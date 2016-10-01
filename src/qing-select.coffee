@@ -47,6 +47,9 @@ class QingSelect extends QingModule
     if $.isFunction(@opts.renderer)
       @opts.renderer.call @, @wrapper
 
+    # generate default options list
+    @dataProvider.filter ''
+
   _render: ->
     @wrapper = $('<div class="qing-select"></div>').insertBefore @el
     @el.hide().appendTo @wrapper
