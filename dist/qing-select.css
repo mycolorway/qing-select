@@ -6,7 +6,11 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
+<<<<<<< 996e0cbbe4f90b52cb040cd630cebcdf0cfe3b98
  * Date: 2016-10-6
+=======
+ * Date: 2016-10-5
+>>>>>>> ADD: support option group
  */
 .qing-select {
   display: inline-block;
@@ -180,5 +184,12 @@
       color: #cccccc;
       padding: 0 10px;
       text-align: center; }
+    .qing-select-popover .options-list .optgroup {
+      background: #F6F6F6;
+      padding-left: 15px;
+      line-height: 30px;
+      color: #9B9B9B;
+      font-size: 12px;
+      font-weight: bold; }
     .qing-select-popover .options-list.loading .option, .qing-select-popover .options-list.loading .hidden-size, .qing-select-popover .options-list.loading .no-options {
       display: none; }

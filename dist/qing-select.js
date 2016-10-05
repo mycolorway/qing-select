@@ -6,7 +6,11 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
+<<<<<<< 996e0cbbe4f90b52cb040cd630cebcdf0cfe3b98
  * Date: 2016-10-6
+=======
+ * Date: 2016-10-5
+>>>>>>> ADD: support option group
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -37,20 +41,27 @@ HtmlSelect = (function(superClass) {
   HtmlSelect.prototype.getOptions = function() {
     var options;
     options = [];
-    this.el.find('option').each((function(_this) {
-      return function(i, optionEl) {
-        var $option, data, value;
-        $option = $(optionEl);
-        if (!(value = $option.val())) {
-          return;
-        }
-        data = $option.data();
-        if ($option.is(':selected')) {
-          data.selected = true;
-        }
-        return options.push([$option.text(), value, data]);
-      };
-    })(this));
+    if (this.el.find('optgroup').length) {
+      this.el.find('optgroup').each((function(_this) {
+        return function(i, optgroupEl) {
+          var option;
+          option = _this._parseOptgroupEl(optgroupEl);
+          if (option) {
+            return options.push(option);
+          }
+        };
+      })(this));
+    } else {
+      this.el.find('option').each((function(_this) {
+        return function(i, optionEl) {
+          var option;
+          option = _this._parseOptionEl(optionEl);
+          if (option) {
+            return options.push(option);
+          }
+        };
+      })(this));
+    }
     return options;
   };
 
@@ -69,6 +80,32 @@ HtmlSelect = (function(superClass) {
     $option = this.el.find("option[value='" + option.value + "']");
     $option.prop('selected', false);
     return this;
+  };
+
+  HtmlSelect.prototype._parseOptgroupEl = function(optgroupEl) {
+    var $optgroup, groupName, options;
+    options = [];
+    $optgroup = $(optgroupEl);
+    groupName = $optgroup.prop('label');
+    $optgroup.find('option').each((function(_this) {
+      return function(i, option) {
+        return options.push(_this._parseOptionEl(option));
+      };
+    })(this));
+    return [groupName, options];
+  };
+
+  HtmlSelect.prototype._parseOptionEl = function(optionEl) {
+    var $option, data, value;
+    $option = $(optionEl);
+    if (!(value = $option.val())) {
+      return false;
+    }
+    data = $option.data();
+    if ($option.is(':selected')) {
+      data.selected = true;
+    }
+    return [$option.text(), value, data];
   };
 
   HtmlSelect.prototype._renderOption = function(option) {
@@ -105,11 +142,13 @@ HtmlSelect = (function(superClass) {
 module.exports = HtmlSelect;
 
 },{}],2:[function(require,module,exports){
-var DataProvider, Option,
+var DataProvider, GroupOption, Option,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 Option = require('./option.coffee');
+
+GroupOption = require('./group-option.coffee');
 
 DataProvider = (function(superClass) {
   extend(DataProvider, superClass);
@@ -126,14 +165,24 @@ DataProvider = (function(superClass) {
     $.extend(this.opts, DataProvider.opts, opts);
     this.remote = this.opts.remote;
     this.options = (function() {
-      var j, len, ref, results;
-      ref = this.opts.options;
-      results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        option = ref[j];
-        results.push(new Option(option));
+      var j, k, len, len1, ref, ref1, ref2, results, results1;
+      if ($.isArray((ref = this.opts.options[0]) != null ? ref[1] : void 0)) {
+        ref1 = this.opts.options;
+        results = [];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          option = ref1[j];
+          results.push(new GroupOption(option));
+        }
+        return results;
+      } else {
+        ref2 = this.opts.options;
+        results1 = [];
+        for (k = 0, len1 = ref2.length; k < len1; k++) {
+          option = ref2[k];
+          results1.push(new Option(option));
+        }
+        return results1;
       }
-      return results;
     }).call(this);
     this.totalOptionSize = this.opts.totalOptionSize;
   }
@@ -145,17 +194,30 @@ DataProvider = (function(superClass) {
     }
     onFetch = (function(_this) {
       return function(result) {
-        var option;
-        result.options = (function() {
-          var j, len, ref, results;
-          ref = result.options;
-          results = [];
-          for (j = 0, len = ref.length; j < len; j++) {
-            option = ref[j];
-            results.push(new Option(option));
-          }
-          return results;
-        })();
+        var groupName, option, options;
+        if (result.options instanceof Array) {
+          result.options = (function() {
+            var j, len, ref, results;
+            ref = result.options;
+            results = [];
+            for (j = 0, len = ref.length; j < len; j++) {
+              option = ref[j];
+              results.push(new Option(option));
+            }
+            return results;
+          })();
+        } else {
+          result.options = (function() {
+            var ref, results;
+            ref = result.options;
+            results = [];
+            for (groupName in ref) {
+              options = ref[groupName];
+              results.push(new GroupOption([groupName, options]));
+            }
+            return results;
+          })();
+        }
         _this.trigger('fetch', [result, value]);
         return callback != null ? callback.call(_this, result) : void 0;
       };
@@ -194,16 +256,36 @@ DataProvider = (function(superClass) {
     } else {
       options = [];
       $.each(this.options, function(i, option) {
-        if (option.match(value)) {
-          return options.push(option);
+        var opt;
+        if (option instanceof GroupOption) {
+          opt = option.options.filter(function(option) {
+            return option.match(value);
+          });
+          if (opt.length) {
+            return options.push(new GroupOption([option.name, opt]));
+          }
+        } else {
+          if (option.match(value)) {
+            return options.push(option);
+          }
         }
       });
       afterFilter({
         options: options,
-        totalSize: options.length
+        totalSize: this.size()
       });
     }
     return null;
+  };
+
+  DataProvider.prototype.size = function() {
+    var result;
+    if (!(this.options[0] instanceof GroupOption)) {
+      return this.options.length;
+    }
+    return result = this.options.reduce(function(length, option) {
+      return length += option.options.length;
+    }, 0);
   };
 
   DataProvider.prototype.getOption = function(value) {
@@ -224,9 +306,48 @@ DataProvider = (function(superClass) {
 
 })(QingModule);
 
+DataProvider.extend({
+  Option: Option,
+  GroupOption: GroupOption
+});
+
 module.exports = DataProvider;
 
-},{"./option.coffee":3}],3:[function(require,module,exports){
+},{"./group-option.coffee":3,"./option.coffee":4}],3:[function(require,module,exports){
+var GroupOption, Option,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+Option = require('./option.coffee');
+
+GroupOption = (function(superClass) {
+  extend(GroupOption, superClass);
+
+  function GroupOption(option) {
+    this.name = option[0];
+    if (option[1][0] instanceof Option) {
+      this.options = option[1];
+    } else {
+      this.options = (function() {
+        var i, len, ref, results;
+        ref = option[1];
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          option = ref[i];
+          results.push(new Option(option));
+        }
+        return results;
+      })();
+    }
+  }
+
+  return GroupOption;
+
+})(QingModule);
+
+module.exports = GroupOption;
+
+},{"./option.coffee":4}],4:[function(require,module,exports){
 var Option,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -256,7 +377,7 @@ Option = (function(superClass) {
   }
 
   Option.prototype.match = function(value) {
-    var e, error, filterKey, re;
+    var e, filterKey, re;
     try {
       re = new RegExp("(^|\\s)" + value, "i");
     } catch (error) {
@@ -273,7 +394,7 @@ Option = (function(superClass) {
 
 module.exports = Option;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var MultipleResultBox,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -422,10 +543,15 @@ MultipleResultBox = (function(superClass) {
 
 module.exports = MultipleResultBox;
 
-},{}],5:[function(require,module,exports){
-var OptionsList,
+},{}],6:[function(require,module,exports){
+var GroupOption, Option, OptionsList,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
+
+Option = require('./models/option.coffee');
+
+GroupOption = require('./models/group-option.coffee');
 
 OptionsList = (function(superClass) {
   extend(OptionsList, superClass);
@@ -440,6 +566,7 @@ OptionsList = (function(superClass) {
   };
 
   function OptionsList(opts) {
+    this.renderOptions = bind(this.renderOptions, this);
     OptionsList.__super__.constructor.apply(this, arguments);
     $.extend(this.opts, OptionsList, opts);
     this.wrapper = $(this.opts.wrapper);
@@ -479,17 +606,29 @@ OptionsList = (function(superClass) {
     this.el.empty().css('min-height', 0);
     this.highlighted = false;
     if (options.length > 0) {
-      this.el.append((function() {
-        var i, len, results;
-        results = [];
-        for (i = 0, len = options.length; i < len; i++) {
-          option = options[i];
-          results.push(this._optionEl(option));
-        }
-        return results;
-      }).call(this));
-      if (totalOptionSize > options.length) {
-        this._renderHiddenSize(totalOptionSize - options.length);
+      if (options[0] instanceof GroupOption) {
+        this.el.append((function() {
+          var i, len, results;
+          results = [];
+          for (i = 0, len = options.length; i < len; i++) {
+            option = options[i];
+            results.push(this._groupEl(option));
+          }
+          return results;
+        }).call(this));
+      } else {
+        this.el.append((function() {
+          var i, len, results;
+          results = [];
+          for (i = 0, len = options.length; i < len; i++) {
+            option = options[i];
+            results.push(this._optionEl(option));
+          }
+          return results;
+        }).call(this));
+      }
+      if (totalOptionSize > this._optionLength(options)) {
+        this._renderHiddenSize(totalOptionSize - this._optionLength(options));
       }
     } else {
       this._renderEmpty();
@@ -497,6 +636,31 @@ OptionsList = (function(superClass) {
     if (!this.highlighted) {
       return this.setHighlighted(this.el.find('.option:first'));
     }
+  };
+
+  OptionsList.prototype._groupEl = function(groupOption) {
+    var $groupEl, option;
+    $groupEl = $("<div class=\"group-wrapper\">\n  <div class=\"optgroup\">" + groupOption.name + "</div>\n</div>");
+    $groupEl.append((function() {
+      var i, len, ref, results;
+      ref = groupOption.options;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        option = ref[i];
+        results.push(this._optionEl(option));
+      }
+      return results;
+    }).call(this));
+    return $groupEl;
+  };
+
+  OptionsList.prototype._optionLength = function(options) {
+    if (!(options[0] instanceof GroupOption)) {
+      return options.length;
+    }
+    return options.reduce(function(length, option) {
+      return length += option.options.length;
+    }, 0);
   };
 
   OptionsList.prototype._optionEl = function(option) {
@@ -567,6 +731,9 @@ OptionsList = (function(superClass) {
     var $nextOption;
     if (this.highlighted) {
       $nextOption = this.highlighted.next('.option');
+      if (!$nextOption.length) {
+        $nextOption = this.highlighted.closest('.group-wrapper').next('.group-wrapper').find('.option:first');
+      }
     } else {
       $nextOption = this.el.find('.option:first');
     }
@@ -579,6 +746,9 @@ OptionsList = (function(superClass) {
     var $prevOption;
     if (this.highlighted) {
       $prevOption = this.highlighted.prev('.option');
+      if (!$prevOption.length) {
+        $prevOption = this.highlighted.closest('.group-wrapper').prev('.group-wrapper').find('.option:last');
+      }
     } else {
       $prevOption = this.el.find('.option:first');
     }
@@ -591,9 +761,14 @@ OptionsList = (function(superClass) {
 
 })(QingModule);
 
+OptionsList.extend({
+  Option: Option,
+  GroupOption: GroupOption
+});
+
 module.exports = OptionsList;
 
-},{}],6:[function(require,module,exports){
+},{"./models/group-option.coffee":3,"./models/option.coffee":4}],7:[function(require,module,exports){
 var OptionsList, Popover, SearchBox,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -623,7 +798,7 @@ Popover = (function(superClass) {
     }
     this.active = false;
     this.dataProvider = this.opts.dataProvider;
-    this.searchable = this.dataProvider.totalOptionSize > this.dataProvider.options.length || this.dataProvider.options.length > this.opts.searchableSize;
+    this.searchable = this.dataProvider.totalOptionSize > this.dataProvider.size() || this.dataProvider.size() > this.opts.searchableSize;
     this._render();
     this._initChildComponents();
     this._bind();
@@ -719,7 +894,7 @@ Popover = (function(superClass) {
 
 module.exports = Popover;
 
-},{"./options-list.coffee":5,"./search-box.coffee":8}],7:[function(require,module,exports){
+},{"./options-list.coffee":6,"./search-box.coffee":9}],8:[function(require,module,exports){
 var ResultBox,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -839,7 +1014,7 @@ ResultBox = (function(superClass) {
 
 module.exports = ResultBox;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var SearchBox,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1244,7 +1419,11 @@ QingSelect.extend({
 
 module.exports = QingSelect;
 
+<<<<<<< 996e0cbbe4f90b52cb040cd630cebcdf0cfe3b98
 },{"./html-select.coffee":1,"./models/data-provider.coffee":2,"./models/option.coffee":3,"./multiple-result-box.coffee":4,"./options-list.coffee":5,"./popover.coffee":6,"./result-box.coffee":7,"./search-box.coffee":8}]},{},[]);
+=======
+},{"./html-select.coffee":1,"./models/data-provider.coffee":2,"./models/option.coffee":4,"./multiple-result-box.coffee":5,"./popover.coffee":7,"./result-box.coffee":8}]},{},[]);
+>>>>>>> ADD: support option group
 
 return b('qing-select');
 }));

@@ -20,8 +20,8 @@ class Popover extends QingModule
 
     @active = false
     @dataProvider = @opts.dataProvider
-    @searchable = @dataProvider.totalOptionSize > @dataProvider.options.length ||
-      @dataProvider.options.length > @opts.searchableSize
+    @searchable = @dataProvider.totalOptionSize > @dataProvider.size() ||
+      @dataProvider.size() > @opts.searchableSize
     @_render()
     @_initChildComponents()
     @_bind()

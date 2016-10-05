@@ -12,12 +12,14 @@ class HtmlSelect extends QingModule
 
   getOptions: ->
     options = []
-    @el.find('option').each (i, optionEl) =>
-      $option = $ optionEl
-      return unless value = $option.val()
-      data = $option.data()
-      data.selected = true if $option.is(':selected')
-      options.push [$option.text(), value, data]
+    if @el.find('optgroup').length
+      @el.find('optgroup').each (i, optgroupEl) =>
+        option = @_parseOptgroupEl(optgroupEl)
+        options.push option if option
+    else
+      @el.find('option').each (i, optionEl) =>
+        option = @_parseOptionEl(optionEl)
+        options.push option if option
     options
 
   selectOption: (option) ->
@@ -31,6 +33,21 @@ class HtmlSelect extends QingModule
     $option = @el.find("option[value='#{option.value}']")
     $option.prop 'selected', false
     @
+
+  _parseOptgroupEl: (optgroupEl) ->
+    options = []
+    $optgroup = $ optgroupEl
+    groupName = $optgroup.prop('label')
+    $optgroup.find('option').each (i, option) =>
+      options.push @_parseOptionEl(option)
+    [groupName, options]
+
+  _parseOptionEl: (optionEl) ->
+    $option = $ optionEl
+    return false unless value = $option.val()
+    data = $option.data()
+    data.selected = true if $option.is(':selected')
+    [$option.text(), value, data]
 
   _renderOption: (option) ->
     $ '<option>',

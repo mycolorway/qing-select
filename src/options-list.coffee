@@ -1,3 +1,5 @@
+Option = require './models/option.coffee'
+GroupOption = require './models/group-option.coffee'
 
 class OptionsList extends QingModule
 
@@ -12,7 +14,6 @@ class OptionsList extends QingModule
   constructor: (opts) ->
     super
     $.extend @opts, OptionsList, opts
-
     @wrapper = $ @opts.wrapper
     return unless @wrapper.length > 0
 
@@ -34,19 +35,37 @@ class OptionsList extends QingModule
       @trigger 'optionClick', [$option]
       null
 
-  renderOptions: (options = [], totalOptionSize) ->
+  renderOptions: (options = [], totalOptionSize) =>
     options = options.slice 0, @opts.maxListSize
     @el.empty().css('min-height', 0)
     @highlighted = false
 
     if options.length > 0
-      @el.append(@_optionEl(option) for option in options)
-      if totalOptionSize > options.length
-        @_renderHiddenSize(totalOptionSize - options.length)
+      if options[0] instanceof GroupOption
+        @el.append(@_groupEl(option) for option in options)
+      else
+        @el.append(@_optionEl(option) for option in options)
+      if totalOptionSize > @_optionLength(options)
+        @_renderHiddenSize(totalOptionSize - @_optionLength(options))
     else
       @_renderEmpty()
 
     @setHighlighted(@el.find('.option:first')) unless @highlighted
+
+  _groupEl: (groupOption) ->
+    $groupEl = $("""
+      <div class="group-wrapper">
+        <div class="optgroup">#{groupOption.name}</div>
+      </div>
+    """)
+    $groupEl.append(@_optionEl(option) for option in groupOption.options)
+    $groupEl
+
+  _optionLength: (options) ->
+    return options.length unless options[0] instanceof GroupOption
+    options.reduce (length, option) ->
+      length += option.options.length
+    , 0
 
   _optionEl: (option) ->
     $optionEl = $("""
@@ -112,6 +131,11 @@ class OptionsList extends QingModule
   highlightNextOption: ->
     if @highlighted
       $nextOption = @highlighted.next('.option')
+      unless $nextOption.length
+        $nextOption = @highlighted
+          .closest('.group-wrapper')
+          .next('.group-wrapper')
+          .find('.option:first')
     else
       $nextOption = @el.find('.option:first')
 
@@ -120,9 +144,18 @@ class OptionsList extends QingModule
   highlightPrevOption: ->
     if @highlighted
       $prevOption = @highlighted.prev('.option')
+      unless $prevOption.length
+        $prevOption = @highlighted
+          .closest('.group-wrapper')
+          .prev('.group-wrapper')
+          .find('.option:last')
     else
       $prevOption = @el.find('.option:first')
 
     @setHighlighted($prevOption) if $prevOption.length > 0
+
+OptionsList.extend
+  Option: Option
+  GroupOption: GroupOption
 
 module.exports = OptionsList
