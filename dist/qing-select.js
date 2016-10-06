@@ -928,7 +928,7 @@ SearchBox = (function(superClass) {
 module.exports = SearchBox;
 
 },{}],"qing-select":[function(require,module,exports){
-var DataProvider, HtmlSelect, MultipleResultBox, Option, Popover, QingSelect, ResultBox,
+var DataProvider, HtmlSelect, MultipleResultBox, Option, OptionsList, Popover, QingSelect, ResultBox, SearchBox,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
@@ -944,6 +944,10 @@ MultipleResultBox = require('./multiple-result-box.coffee');
 ResultBox = require('./result-box.coffee');
 
 Popover = require('./popover.coffee');
+
+SearchBox = require('./search-box.coffee');
+
+OptionsList = require('./options-list.coffee');
 
 QingSelect = (function(superClass) {
   extend(QingSelect, superClass);
@@ -1233,12 +1237,14 @@ QingSelect.extend({
   HtmlSelect: HtmlSelect,
   MultipleResultBox: MultipleResultBox,
   ResultBox: ResultBox,
-  Popover: Popover
+  Popover: Popover,
+  SearchBox: SearchBox,
+  OptionsList: OptionsList
 });
 
 module.exports = QingSelect;
 
-},{"./html-select.coffee":1,"./models/data-provider.coffee":2,"./models/option.coffee":3,"./multiple-result-box.coffee":4,"./popover.coffee":6,"./result-box.coffee":7}]},{},[]);
+},{"./html-select.coffee":1,"./models/data-provider.coffee":2,"./models/option.coffee":3,"./multiple-result-box.coffee":4,"./options-list.coffee":5,"./popover.coffee":6,"./result-box.coffee":7,"./search-box.coffee":8}]},{},[]);
 
 return b('qing-select');
 }));

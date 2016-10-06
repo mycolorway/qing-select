@@ -4,6 +4,8 @@ HtmlSelect = require './html-select.coffee'
 MultipleResultBox = require './multiple-result-box.coffee'
 ResultBox = require './result-box.coffee'
 Popover = require './popover.coffee'
+SearchBox = require './search-box.coffee'
+OptionsList = require './options-list.coffee'
 
 class QingSelect extends QingModule
 
@@ -230,5 +232,7 @@ QingSelect.extend
   MultipleResultBox: MultipleResultBox
   ResultBox: ResultBox
   Popover: Popover
+  SearchBox: SearchBox
+  OptionsList: OptionsList
 
 module.exports = QingSelect
