@@ -37,7 +37,7 @@ class DataProvider extends QingModule
       @trigger 'filter', [result, value]
       callback?.call @, result
 
-    if @remote
+    if @remote && @options.length < @totalOptionSize
       if value
         @_fetch value, afterFilter
       else

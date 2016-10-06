@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-10-1
+ * Date: 2016-10-6
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -182,7 +182,7 @@ DataProvider = (function(superClass) {
         return callback != null ? callback.call(_this, result) : void 0;
       };
     })(this);
-    if (this.remote) {
+    if (this.remote && this.options.length < this.totalOptionSize) {
       if (value) {
         this._fetch(value, afterFilter);
       } else {
