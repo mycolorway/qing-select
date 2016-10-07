@@ -47,8 +47,6 @@ class OptionsList extends QingModule
     else
       @_renderEmpty()
 
-    @setHighlighted(@el.find('.option:first')) unless @highlighted
-
   _optionEl: (option) ->
     $optionEl = $("""
       <div class="option">

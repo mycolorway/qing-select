@@ -513,13 +513,10 @@ OptionsList = (function(superClass) {
         return results;
       }).call(this));
       if (totalOptionSize > options.length) {
-        this._renderHiddenSize(totalOptionSize - options.length);
+        return this._renderHiddenSize(totalOptionSize - options.length);
       }
     } else {
-      this._renderEmpty();
-    }
-    if (!this.highlighted) {
-      return this.setHighlighted(this.el.find('.option:first'));
+      return this._renderEmpty();
     }
   };
 
@@ -690,7 +687,10 @@ Popover = (function(superClass) {
     this.dataProvider.on('filter', (function(_this) {
       return function(e, result, value) {
         _this.optionsList.setLoading(false);
-        return _this.optionsList.renderOptions(result.options, result.totalSize);
+        _this.optionsList.renderOptions(result.options, result.totalSize);
+        if (!_this.optionsList.highlighted) {
+          return _this.optionsList.highlightNextOption();
+        }
       };
     })(this));
     this.searchBox.on('enterPress', (function(_this) {

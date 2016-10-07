@@ -52,6 +52,7 @@ class Popover extends QingModule
     @dataProvider.on 'filter', (e, result, value) =>
       @optionsList.setLoading false
       @optionsList.renderOptions result.options, result.totalSize
+      @optionsList.highlightNextOption() unless @optionsList.highlighted
 
     @searchBox.on 'enterPress', (e) =>
       if @optionsList.highlighted
