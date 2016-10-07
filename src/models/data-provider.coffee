@@ -7,10 +7,11 @@ class DataProvider extends QingModule
     options: []
     totalOptionSize: null
 
-  constructor: (opts) ->
+  _setOptions: (opts) ->
     super
     $.extend @opts, DataProvider.opts, opts
 
+  _init: ->
     @remote = @opts.remote
     @options = (new Option(option) for option in @opts.options)
     @totalOptionSize = @opts.totalOptionSize

@@ -6,10 +6,11 @@ class SearchBox extends QingModule
     placeholder: ''
     hidden: false
 
-  constructor: (opts) ->
+  _setOptions: (opts) ->
     super
     $.extend @opts, SearchBox.opts, opts
 
+  _init: ->
     @wrapper = $ @opts.wrapper
     return unless @wrapper.length > 0
 

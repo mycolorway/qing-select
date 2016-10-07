@@ -1,4 +1,4 @@
-class Option extends QingModule
+class Option
 
   constructor: (option) ->
     @name = option[0]

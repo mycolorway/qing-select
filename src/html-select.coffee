@@ -4,10 +4,11 @@ class HtmlSelect extends QingModule
   @opts:
     el: null
 
-  constructor: (opts) ->
+  _setOptions: (opts) ->
     super
     $.extend @opts, HtmlSelect.opts, opts
 
+  _init: ->
     @el = $ @opts.el
 
   getOptions: ->

@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-10-6
+ * Date: 2016-10-7
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -24,15 +24,22 @@ var HtmlSelect,
 HtmlSelect = (function(superClass) {
   extend(HtmlSelect, superClass);
 
+  function HtmlSelect() {
+    return HtmlSelect.__super__.constructor.apply(this, arguments);
+  }
+
   HtmlSelect.opts = {
     el: null
   };
 
-  function HtmlSelect(opts) {
-    HtmlSelect.__super__.constructor.apply(this, arguments);
-    $.extend(this.opts, HtmlSelect.opts, opts);
-    this.el = $(this.opts.el);
-  }
+  HtmlSelect.prototype._setOptions = function(opts) {
+    HtmlSelect.__super__._setOptions.apply(this, arguments);
+    return $.extend(this.opts, HtmlSelect.opts, opts);
+  };
+
+  HtmlSelect.prototype._init = function() {
+    return this.el = $(this.opts.el);
+  };
 
   HtmlSelect.prototype.getOptions = function() {
     var options;
@@ -114,16 +121,23 @@ Option = require('./option.coffee');
 DataProvider = (function(superClass) {
   extend(DataProvider, superClass);
 
+  function DataProvider() {
+    return DataProvider.__super__.constructor.apply(this, arguments);
+  }
+
   DataProvider.opts = {
     remote: false,
     options: [],
     totalOptionSize: null
   };
 
-  function DataProvider(opts) {
+  DataProvider.prototype._setOptions = function(opts) {
+    DataProvider.__super__._setOptions.apply(this, arguments);
+    return $.extend(this.opts, DataProvider.opts, opts);
+  };
+
+  DataProvider.prototype._init = function() {
     var option;
-    DataProvider.__super__.constructor.apply(this, arguments);
-    $.extend(this.opts, DataProvider.opts, opts);
     this.remote = this.opts.remote;
     this.options = (function() {
       var j, len, ref, results;
@@ -135,8 +149,8 @@ DataProvider = (function(superClass) {
       }
       return results;
     }).call(this);
-    this.totalOptionSize = this.opts.totalOptionSize;
-  }
+    return this.totalOptionSize = this.opts.totalOptionSize;
+  };
 
   DataProvider.prototype._fetch = function(value, callback) {
     var obj, onFetch;
@@ -227,13 +241,9 @@ DataProvider = (function(superClass) {
 module.exports = DataProvider;
 
 },{"./option.coffee":3}],3:[function(require,module,exports){
-var Option,
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var Option;
 
-Option = (function(superClass) {
-  extend(Option, superClass);
-
+Option = (function() {
   function Option(option) {
     this.name = option[0];
     this.value = option[1].toString();
@@ -269,7 +279,7 @@ Option = (function(superClass) {
 
   return Option;
 
-})(QingModule);
+})();
 
 module.exports = Option;
 
@@ -281,6 +291,10 @@ var MultipleResultBox,
 MultipleResultBox = (function(superClass) {
   extend(MultipleResultBox, superClass);
 
+  function MultipleResultBox() {
+    return MultipleResultBox.__super__.constructor.apply(this, arguments);
+  }
+
   MultipleResultBox.opts = {
     wrapper: null,
     placeholder: '',
@@ -288,9 +302,12 @@ MultipleResultBox = (function(superClass) {
     locales: null
   };
 
-  function MultipleResultBox(opts) {
-    MultipleResultBox.__super__.constructor.apply(this, arguments);
-    $.extend(this.opts, MultipleResultBox.opts, opts);
+  MultipleResultBox.prototype._setOptions = function(opts) {
+    MultipleResultBox.__super__._setOptions.apply(this, arguments);
+    return $.extend(this.opts, MultipleResultBox.opts, opts);
+  };
+
+  MultipleResultBox.prototype._init = function() {
     this.wrapper = $(this.opts.wrapper);
     if (!(this.wrapper.length > 0)) {
       return;
@@ -301,9 +318,9 @@ MultipleResultBox = (function(superClass) {
     this._render();
     this._bind();
     if (this.opts.selected) {
-      this.addSelected(this.opts.selected);
+      return this.addSelected(this.opts.selected);
     }
-  }
+  };
 
   MultipleResultBox.prototype._render = function() {
     this.el = $("<div class=\"multiple-result-box\">\n  <a class=\"link-add\" href=\"javascript:;\">\n    <i class=\"icon-add\">&#65291;</i>\n    <span>" + this.opts.locales.addSelected + "</span>\n  </a>\n</div>").appendTo(this.wrapper);
@@ -430,6 +447,10 @@ var OptionsList,
 OptionsList = (function(superClass) {
   extend(OptionsList, superClass);
 
+  function OptionsList() {
+    return OptionsList.__super__.constructor.apply(this, arguments);
+  }
+
   OptionsList.opts = {
     wrapper: null,
     locales: null,
@@ -439,17 +460,20 @@ OptionsList = (function(superClass) {
     maxListSize: 0
   };
 
-  function OptionsList(opts) {
-    OptionsList.__super__.constructor.apply(this, arguments);
-    $.extend(this.opts, OptionsList, opts);
+  OptionsList.prototype._setOptions = function(opts) {
+    OptionsList.__super__._setOptions.apply(this, arguments);
+    return $.extend(this.opts, OptionsList.opts, opts);
+  };
+
+  OptionsList.prototype._init = function() {
     this.wrapper = $(this.opts.wrapper);
     if (!(this.wrapper.length > 0)) {
       return;
     }
     this.highlighted = false;
     this._render();
-    this._bind();
-  }
+    return this._bind();
+  };
 
   OptionsList.prototype._render = function() {
     this.el = $('<div class="options-list"></div>').appendTo(this.wrapper);
@@ -605,6 +629,10 @@ OptionsList = require('./options-list.coffee');
 Popover = (function(superClass) {
   extend(Popover, superClass);
 
+  function Popover() {
+    return Popover.__super__.constructor.apply(this, arguments);
+  }
+
   Popover.opts = {
     wrapper: null,
     dataProvider: null,
@@ -614,9 +642,12 @@ Popover = (function(superClass) {
     opitonRenderer: null
   };
 
-  function Popover(opts) {
-    Popover.__super__.constructor.apply(this, arguments);
-    $.extend(this.opts, SearchBox.opts, opts);
+  Popover.prototype._setOptions = function(opts) {
+    Popover.__super__._setOptions.apply(this, arguments);
+    return $.extend(this.opts, Popover.opts, opts);
+  };
+
+  Popover.prototype._init = function() {
     this.wrapper = $(this.opts.wrapper);
     if (!(this.wrapper.length > 0)) {
       return;
@@ -626,8 +657,8 @@ Popover = (function(superClass) {
     this.searchable = this.dataProvider.totalOptionSize > this.dataProvider.options.length || this.dataProvider.options.length > this.opts.searchableSize;
     this._render();
     this._initChildComponents();
-    this._bind();
-  }
+    return this._bind();
+  };
 
   Popover.prototype._render = function() {
     return this.el = $('<div class="qing-select-popover">');
@@ -642,6 +673,7 @@ Popover = (function(superClass) {
     return this.optionsList = new OptionsList({
       wrapper: this.el,
       locales: this.opts.locales,
+      options: this.dataProvider.options,
       optionRenderer: this.opts.optionRenderer,
       totalOptionSize: this.dataProvider.totalOptionSize,
       maxListSize: this.opts.maxListSize
@@ -727,6 +759,10 @@ var ResultBox,
 ResultBox = (function(superClass) {
   extend(ResultBox, superClass);
 
+  function ResultBox() {
+    return ResultBox.__super__.constructor.apply(this, arguments);
+  }
+
   ResultBox.opts = {
     wrapper: null,
     placeholder: '',
@@ -734,9 +770,12 @@ ResultBox = (function(superClass) {
     clearable: true
   };
 
-  function ResultBox(opts) {
-    ResultBox.__super__.constructor.apply(this, arguments);
-    $.extend(this.opts, ResultBox.opts, opts);
+  ResultBox.prototype._setOptions = function(opts) {
+    ResultBox.__super__._setOptions.apply(this, arguments);
+    return $.extend(this.opts, ResultBox.opts, opts);
+  };
+
+  ResultBox.prototype._init = function() {
     this.wrapper = $(this.opts.wrapper);
     if (!(this.wrapper.length > 0)) {
       return;
@@ -745,8 +784,8 @@ ResultBox = (function(superClass) {
     this.disabled = false;
     this._render();
     this._bind();
-    this.setSelected(this.opts.selected);
-  }
+    return this.setSelected(this.opts.selected);
+  };
 
   ResultBox.prototype._render = function() {
     this.el = $("<div class=\"result-box\" tabindex=\"0\">\n  <div class=\"placeholder\">" + this.opts.placeholder + "</div>\n  <div class=\"result\"></div>\n  <i class=\"icon-expand\"><span>&#9662;</span></i>\n  <a class=\"link-clear\" href=\"javascript:;\" tabindex=\"-1\">\n    &#10005;\n  </a>\n</div>").appendTo(this.wrapper);
@@ -847,23 +886,30 @@ var SearchBox,
 SearchBox = (function(superClass) {
   extend(SearchBox, superClass);
 
+  function SearchBox() {
+    return SearchBox.__super__.constructor.apply(this, arguments);
+  }
+
   SearchBox.opts = {
     wrapper: null,
     placeholder: '',
     hidden: false
   };
 
-  function SearchBox(opts) {
-    SearchBox.__super__.constructor.apply(this, arguments);
-    $.extend(this.opts, SearchBox.opts, opts);
+  SearchBox.prototype._setOptions = function(opts) {
+    SearchBox.__super__._setOptions.apply(this, arguments);
+    return $.extend(this.opts, SearchBox.opts, opts);
+  };
+
+  SearchBox.prototype._init = function() {
     this.wrapper = $(this.opts.wrapper);
     if (!(this.wrapper.length > 0)) {
       return;
     }
     this._inputDelay = 200;
     this._render();
-    this._bind();
-  }
+    return this._bind();
+  };
 
   SearchBox.prototype._render = function() {
     this.el = $("<div class=\"search-box\">\n  <input type=\"text\" class=\"text-field\" tabindex=\"-1\"\n    placeholder=\"" + this.opts.placeholder + "\" />\n  <span class=\"icon-search\">&#128269;</span>\n</div>").appendTo(this.wrapper);

@@ -9,10 +9,11 @@ class OptionsList extends QingModule
     totalOptionSize: null
     maxListSize: 0
 
-  constructor: (opts) ->
+  _setOptions: (opts) ->
     super
-    $.extend @opts, OptionsList, opts
+    $.extend @opts, OptionsList.opts, opts
 
+  _init: ->
     @wrapper = $ @opts.wrapper
     return unless @wrapper.length > 0
 

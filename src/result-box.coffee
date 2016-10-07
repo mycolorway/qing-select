@@ -7,10 +7,11 @@ class ResultBox extends QingModule
     selected: false
     clearable: true
 
-  constructor: (opts) ->
+  _setOptions: (opts) ->
     super
     $.extend @opts, ResultBox.opts, opts
 
+  _init: ->
     @wrapper = $ @opts.wrapper
     return unless @wrapper.length > 0
 

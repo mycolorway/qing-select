@@ -7,10 +7,11 @@ class MultipleResultBox extends QingModule
     selected: false
     locales: null
 
-  constructor: (opts) ->
+  _setOptions: (opts) ->
     super
     $.extend @opts, MultipleResultBox.opts, opts
 
+  _init: ->
     @wrapper = $ @opts.wrapper
     return unless @wrapper.length > 0
 

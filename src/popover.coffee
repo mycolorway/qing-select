@@ -11,10 +11,11 @@ class Popover extends QingModule
     searchableSize: 8
     opitonRenderer: null
 
-  constructor: (opts) ->
+  _setOptions: (opts) ->
     super
-    $.extend @opts, SearchBox.opts, opts
+    $.extend @opts, Popover.opts, opts
 
+  _init: ->
     @wrapper = $ @opts.wrapper
     return unless @wrapper.length > 0
 
@@ -38,7 +39,7 @@ class Popover extends QingModule
     @optionsList = new OptionsList
       wrapper: @el
       locales: @opts.locales
-      # options: @dataProvider.options
+      options: @dataProvider.options
       optionRenderer: @opts.optionRenderer
       totalOptionSize: @dataProvider.totalOptionSize
       maxListSize: @opts.maxListSize
