@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-10-7
+ * Date: 2016-10-8
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -936,6 +936,7 @@ SearchBox = (function(superClass) {
       return function(e) {
         if (e.which === 13) {
           _this.trigger('enterPress');
+          return false;
         } else if (e.which === 27) {
           _this.setValue('');
           _this.trigger('escapePress');

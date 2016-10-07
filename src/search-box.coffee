@@ -43,6 +43,7 @@ class SearchBox extends QingModule
     @textField.on 'keydown', (e) =>
       if e.which == 13
         @trigger 'enterPress'
+        return false
       else if e.which == 27
         @setValue ''
         @trigger 'escapePress'
