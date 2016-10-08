@@ -180,5 +180,12 @@
       color: #cccccc;
       padding: 0 10px;
       text-align: center; }
+    .qing-select-popover .options-list .optgroup {
+      background: #F6F6F6;
+      padding-left: 15px;
+      line-height: 30px;
+      color: #9B9B9B;
+      font-size: 12px;
+      font-weight: bold; }
     .qing-select-popover .options-list.loading .option, .qing-select-popover .options-list.loading .hidden-size, .qing-select-popover .options-list.loading .no-options {
       display: none; }

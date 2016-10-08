@@ -55,6 +55,9 @@ HtmlSelect = (function(superClass) {
         if ($option.is(':selected')) {
           data.selected = true;
         }
+        if ($option.parent('optgroup').length) {
+          data.group = $option.parent('optgroup').prop('label');
+        }
         return options.push([$option.text(), value, data]);
       };
     })(this));
@@ -266,7 +269,7 @@ Option = (function() {
   }
 
   Option.prototype.match = function(value) {
-    var e, error, filterKey, re;
+    var e, filterKey, re;
     try {
       re = new RegExp("(^|\\s)" + value, "i");
     } catch (error) {
@@ -495,7 +498,7 @@ OptionsList = (function(superClass) {
   };
 
   OptionsList.prototype.renderOptions = function(options, totalOptionSize) {
-    var option;
+    var i, len, option;
     if (options == null) {
       options = [];
     }
@@ -503,21 +506,21 @@ OptionsList = (function(superClass) {
     this.el.empty().css('min-height', 0);
     this.highlighted = false;
     if (options.length > 0) {
-      this.el.append((function() {
-        var i, len, results;
-        results = [];
-        for (i = 0, len = options.length; i < len; i++) {
-          option = options[i];
-          results.push(this._optionEl(option));
-        }
-        return results;
-      }).call(this));
+      for (i = 0, len = options.length; i < len; i++) {
+        option = options[i];
+        this._append(this._optionEl(option));
+      }
       if (totalOptionSize > options.length) {
         return this._renderHiddenSize(totalOptionSize - options.length);
       }
     } else {
       return this._renderEmpty();
     }
+  };
+
+  OptionsList.prototype._groupEl = function(groupName) {
+    var $groupEl;
+    return $groupEl = $("<div class=\"group-wrapper " + (groupName.replace(' ').toLowerCase()) + "\">\n  <div class=\"optgroup\">" + groupName + "</div>\n</div>");
   };
 
   OptionsList.prototype._optionEl = function(option) {
@@ -536,6 +539,20 @@ OptionsList = (function(superClass) {
       this.opts.opitonRenderer.call(this, $optionEl, option);
     }
     return $optionEl;
+  };
+
+  OptionsList.prototype._append = function(optionEl) {
+    var $groupEl, className, group, ref;
+    group = (ref = optionEl.data('option').data) != null ? ref.group : void 0;
+    if (!group) {
+      return this.el.append(optionEl);
+    }
+    className = group.replace(' ').toLowerCase();
+    if (!this.el.find(".group-wrapper." + className).length) {
+      this.el.append(this._groupEl(group));
+    }
+    $groupEl = this.el.find(".group-wrapper." + className);
+    return $groupEl.append(optionEl);
   };
 
   OptionsList.prototype._renderEmpty = function() {
@@ -588,6 +605,9 @@ OptionsList = (function(superClass) {
     var $nextOption;
     if (this.highlighted) {
       $nextOption = this.highlighted.next('.option');
+      if (!$nextOption.length) {
+        $nextOption = this.highlighted.closest('.group-wrapper').next('.group-wrapper').find('.option:first');
+      }
     } else {
       $nextOption = this.el.find('.option:first');
     }
@@ -600,6 +620,9 @@ OptionsList = (function(superClass) {
     var $prevOption;
     if (this.highlighted) {
       $prevOption = this.highlighted.prev('.option');
+      if (!$prevOption.length) {
+        $prevOption = this.highlighted.closest('.group-wrapper').prev('.group-wrapper').find('.option:last');
+      }
     } else {
       $prevOption = this.el.find('.option:first');
     }
