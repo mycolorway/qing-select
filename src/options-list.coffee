@@ -44,12 +44,13 @@ class OptionsList extends QingModule
       @_append(@_optionEl(option)) for option in options
       if totalOptionSize > options.length
         @_renderHiddenSize(totalOptionSize - options.length)
+      @_lastRenderGroup = null
     else
       @_renderEmpty()
 
   _groupEl: (groupName) ->
-    $groupEl = $("""
-      <div class="optgroup #{groupName.replace(' ').toLowerCase()}">#{groupName}</div>
+    $("""
+      <div class="optgroup">#{groupName}</div>
     """)
 
   _optionEl: (option) ->
@@ -76,12 +77,14 @@ class OptionsList extends QingModule
     $optionEl
 
   _append: (optionEl) ->
+    $groupEl = null
     group = optionEl.data('option').data?.group
-    return @el.append(optionEl) unless group
-    className = group.replace(' ').toLowerCase()
-    @el.append(@_groupEl(group)) unless @el.find(".optgroup.#{className}").length
-    $groupEl = @el.find(".optgroup.#{className}")
-    $groupEl.after optionEl
+    return @el.prepend(optionEl) unless group
+
+    if @_lastRenderGroup != group
+      @_lastRenderGroup = group
+      @el.append(@_groupEl(group))
+    @el.append(optionEl)
 
   _renderEmpty: ->
     @el.append """

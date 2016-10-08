@@ -511,16 +511,16 @@ OptionsList = (function(superClass) {
         this._append(this._optionEl(option));
       }
       if (totalOptionSize > options.length) {
-        return this._renderHiddenSize(totalOptionSize - options.length);
+        this._renderHiddenSize(totalOptionSize - options.length);
       }
+      return this._lastRenderGroup = null;
     } else {
       return this._renderEmpty();
     }
   };
 
   OptionsList.prototype._groupEl = function(groupName) {
-    var $groupEl;
-    return $groupEl = $("<div class=\"optgroup " + (groupName.replace(' ').toLowerCase()) + "\">" + groupName + "</div>");
+    return $("<div class=\"optgroup\">" + groupName + "</div>");
   };
 
   OptionsList.prototype._optionEl = function(option) {
@@ -542,17 +542,17 @@ OptionsList = (function(superClass) {
   };
 
   OptionsList.prototype._append = function(optionEl) {
-    var $groupEl, className, group, ref;
+    var $groupEl, group, ref;
+    $groupEl = null;
     group = (ref = optionEl.data('option').data) != null ? ref.group : void 0;
     if (!group) {
-      return this.el.append(optionEl);
+      return this.el.prepend(optionEl);
     }
-    className = group.replace(' ').toLowerCase();
-    if (!this.el.find(".optgroup." + className).length) {
+    if (this._lastRenderGroup !== group) {
+      this._lastRenderGroup = group;
       this.el.append(this._groupEl(group));
     }
-    $groupEl = this.el.find(".optgroup." + className);
-    return $groupEl.after(optionEl);
+    return this.el.append(optionEl);
   };
 
   OptionsList.prototype._renderEmpty = function() {
