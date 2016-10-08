@@ -119,8 +119,7 @@ class QingSelect extends QingModule
         @_setActive !@active
 
       @resultBox.on 'clearClick', (e) =>
-        return unless @resultBox.selected
-        @unselectOption @resultBox.selected
+        @clear()
 
     @popover.on 'select', (e, option) =>
       @selectOption option
@@ -181,9 +180,14 @@ class QingSelect extends QingModule
     left: resultBoxPosition.left
     minWidth: resultBoxWidth
 
+  clear: ->
+    return unless @resultBox.selected
+    @unselectOption @resultBox.selected
+
   selectOption: (option) ->
     unless option instanceof Option
       option = @dataProvider.getOption option
+    return unless option
     option.selected = true
 
     if @multiple
@@ -195,14 +199,13 @@ class QingSelect extends QingModule
       @resultBox.setSelected option
 
     @htmlSelect.selectOption option
-    @_setActive false
-    @dataProvider.filter ''
-    @trigger 'change', [@resultBox.selected]
+    @_afterSelectionChange()
     @
 
   unselectOption: (option) ->
     unless option instanceof Option
       option = @dataProvider.getOption option
+    return unless option
     option.selected = false
 
     if @multiple
@@ -211,10 +214,14 @@ class QingSelect extends QingModule
       @resultBox.setSelected false
 
     @htmlSelect.unselectOption option
+    @_afterSelectionChange()
+    @
+
+  _afterSelectionChange: ->
     @_setActive false
+    @dataProvider.setOptions @htmlSelect.getOptions()
     @dataProvider.filter ''
     @trigger 'change', [@resultBox.selected]
-    @
 
   destroy: ->
     @el.insertBefore @wrapper

@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-10-8
+ * Date: 2016-10-9
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -140,19 +140,9 @@ DataProvider = (function(superClass) {
   };
 
   DataProvider.prototype._init = function() {
-    var option;
     this.remote = this.opts.remote;
-    this.options = (function() {
-      var j, len, ref, results;
-      ref = this.opts.options;
-      results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        option = ref[j];
-        results.push(new Option(option));
-      }
-      return results;
-    }).call(this);
-    return this.totalOptionSize = this.opts.totalOptionSize;
+    this.totalOptionSize = this.opts.totalOptionSize;
+    return this.setOptions(this.opts.options);
   };
 
   DataProvider.prototype._fetch = function(value, callback) {
@@ -235,6 +225,20 @@ DataProvider = (function(superClass) {
     } else {
       return null;
     }
+  };
+
+  DataProvider.prototype.setOptions = function(options) {
+    var option;
+    return this.options = (function() {
+      var j, len, ref, results;
+      ref = this.opts.options;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        option = ref[j];
+        results.push(new Option(option));
+      }
+      return results;
+    }).call(this);
   };
 
   return DataProvider;
@@ -1150,10 +1154,7 @@ QingSelect = (function(superClass) {
       })(this));
       this.resultBox.on('clearClick', (function(_this) {
         return function(e) {
-          if (!_this.resultBox.selected) {
-            return;
-          }
-          return _this.unselectOption(_this.resultBox.selected);
+          return _this.clear();
         };
       })(this));
     }
@@ -1244,10 +1245,20 @@ QingSelect = (function(superClass) {
     };
   };
 
+  QingSelect.prototype.clear = function() {
+    if (!this.resultBox.selected) {
+      return;
+    }
+    return this.unselectOption(this.resultBox.selected);
+  };
+
   QingSelect.prototype.selectOption = function(option) {
     var oldOption;
     if (!(option instanceof Option)) {
       option = this.dataProvider.getOption(option);
+    }
+    if (!option) {
+      return;
     }
     option.selected = true;
     if (this.multiple) {
@@ -1260,15 +1271,16 @@ QingSelect = (function(superClass) {
       this.resultBox.setSelected(option);
     }
     this.htmlSelect.selectOption(option);
-    this._setActive(false);
-    this.dataProvider.filter('');
-    this.trigger('change', [this.resultBox.selected]);
+    this._afterSelectionChange();
     return this;
   };
 
   QingSelect.prototype.unselectOption = function(option) {
     if (!(option instanceof Option)) {
       option = this.dataProvider.getOption(option);
+    }
+    if (!option) {
+      return;
     }
     option.selected = false;
     if (this.multiple) {
@@ -1277,10 +1289,15 @@ QingSelect = (function(superClass) {
       this.resultBox.setSelected(false);
     }
     this.htmlSelect.unselectOption(option);
-    this._setActive(false);
-    this.dataProvider.filter('');
-    this.trigger('change', [this.resultBox.selected]);
+    this._afterSelectionChange();
     return this;
+  };
+
+  QingSelect.prototype._afterSelectionChange = function() {
+    this._setActive(false);
+    this.dataProvider.setOptions(this.htmlSelect.getOptions());
+    this.dataProvider.filter('');
+    return this.trigger('change', [this.resultBox.selected]);
   };
 
   QingSelect.prototype.destroy = function() {

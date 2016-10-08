@@ -13,8 +13,8 @@ class DataProvider extends QingModule
 
   _init: ->
     @remote = @opts.remote
-    @options = (new Option(option) for option in @opts.options)
     @totalOptionSize = @opts.totalOptionSize
+    @setOptions @opts.options
 
   _fetch: (value, callback) ->
     return if !@remote || @trigger('beforeFetch') == false
@@ -59,5 +59,7 @@ class DataProvider extends QingModule
       option.value == value
     if result.length > 0 then result[0] else null
 
+  setOptions: (options) ->
+    @options = (new Option(option) for option in @opts.options)
 
 module.exports = DataProvider
