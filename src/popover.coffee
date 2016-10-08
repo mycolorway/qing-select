@@ -64,6 +64,7 @@ class Popover extends QingModule
     @searchBox.on 'arrowPress', (e, direction) =>
       if direction == 'up'
         @optionsList.highlightPrevOption()
+
       else if direction == 'down'
         @optionsList.highlightNextOption()
 

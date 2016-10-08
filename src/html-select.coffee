@@ -18,6 +18,7 @@ class HtmlSelect extends QingModule
       return unless value = $option.val()
       data = $option.data()
       data.selected = true if $option.is(':selected')
+      data.group = $option.parent('optgroup').prop('label') if $option.parent('optgroup').length
       options.push [$option.text(), value, data]
     options
 

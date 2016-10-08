@@ -55,6 +55,9 @@ HtmlSelect = (function(superClass) {
         if ($option.is(':selected')) {
           data.selected = true;
         }
+        if ($option.parent('optgroup').length) {
+          data.group = $option.parent('optgroup').prop('label');
+        }
         return options.push([$option.text(), value, data]);
       };
     })(this));
@@ -266,7 +269,7 @@ Option = (function() {
   }
 
   Option.prototype.match = function(value) {
-    var e, error, filterKey, re;
+    var e, filterKey, re;
     try {
       re = new RegExp("(^|\\s)" + value, "i");
     } catch (error) {
@@ -495,7 +498,7 @@ OptionsList = (function(superClass) {
   };
 
   OptionsList.prototype.renderOptions = function(options, totalOptionSize) {
-    var option;
+    var i, len, option;
     if (options == null) {
       options = [];
     }
@@ -503,21 +506,21 @@ OptionsList = (function(superClass) {
     this.el.empty().css('min-height', 0);
     this.highlighted = false;
     if (options.length > 0) {
-      this.el.append((function() {
-        var i, len, results;
-        results = [];
-        for (i = 0, len = options.length; i < len; i++) {
-          option = options[i];
-          results.push(this._optionEl(option));
-        }
-        return results;
-      }).call(this));
-      if (totalOptionSize > options.length) {
-        return this._renderHiddenSize(totalOptionSize - options.length);
+      for (i = 0, len = options.length; i < len; i++) {
+        option = options[i];
+        this._append(this._optionEl(option));
       }
+      if (totalOptionSize > options.length) {
+        this._renderHiddenSize(totalOptionSize - options.length);
+      }
+      return this._lastRenderGroup = null;
     } else {
       return this._renderEmpty();
     }
+  };
+
+  OptionsList.prototype._groupEl = function(groupName) {
+    return $("<div class=\"optgroup\">" + groupName + "</div>");
   };
 
   OptionsList.prototype._optionEl = function(option) {
@@ -536,6 +539,20 @@ OptionsList = (function(superClass) {
       this.opts.opitonRenderer.call(this, $optionEl, option);
     }
     return $optionEl;
+  };
+
+  OptionsList.prototype._append = function(optionEl) {
+    var $groupEl, group, ref;
+    $groupEl = null;
+    group = (ref = optionEl.data('option').data) != null ? ref.group : void 0;
+    if (!group) {
+      return this.el.prepend(optionEl);
+    }
+    if (this._lastRenderGroup !== group) {
+      this._lastRenderGroup = group;
+      this.el.append(this._groupEl(group));
+    }
+    return this.el.append(optionEl);
   };
 
   OptionsList.prototype._renderEmpty = function() {
@@ -587,7 +604,7 @@ OptionsList = (function(superClass) {
   OptionsList.prototype.highlightNextOption = function() {
     var $nextOption;
     if (this.highlighted) {
-      $nextOption = this.highlighted.next('.option');
+      $nextOption = this.highlighted.nextAll('.option:first');
     } else {
       $nextOption = this.el.find('.option:first');
     }
@@ -599,7 +616,7 @@ OptionsList = (function(superClass) {
   OptionsList.prototype.highlightPrevOption = function() {
     var $prevOption;
     if (this.highlighted) {
-      $prevOption = this.highlighted.prev('.option');
+      $prevOption = this.highlighted.prevAll('.option:first');
     } else {
       $prevOption = this.el.find('.option:first');
     }

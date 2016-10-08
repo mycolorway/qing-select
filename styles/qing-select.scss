@@ -249,6 +249,15 @@
       text-align: center;
     }
 
+    .optgroup {
+      background: #F6F6F6;
+      padding-left: 15px;
+      line-height: 30px;
+      color: #9B9B9B;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
     &.loading {
       .option, .hidden-size, .no-options {
         display: none;

@@ -41,11 +41,17 @@ class OptionsList extends QingModule
     @highlighted = false
 
     if options.length > 0
-      @el.append(@_optionEl(option) for option in options)
+      @_append(@_optionEl(option)) for option in options
       if totalOptionSize > options.length
         @_renderHiddenSize(totalOptionSize - options.length)
+      @_lastRenderGroup = null
     else
       @_renderEmpty()
+
+  _groupEl: (groupName) ->
+    $("""
+      <div class="optgroup">#{groupName}</div>
+    """)
 
   _optionEl: (option) ->
     $optionEl = $("""
@@ -69,6 +75,16 @@ class OptionsList extends QingModule
       @opts.opitonRenderer.call(@, $optionEl, option)
 
     $optionEl
+
+  _append: (optionEl) ->
+    $groupEl = null
+    group = optionEl.data('option').data?.group
+    return @el.prepend(optionEl) unless group
+
+    if @_lastRenderGroup != group
+      @_lastRenderGroup = group
+      @el.append(@_groupEl(group))
+    @el.append(optionEl)
 
   _renderEmpty: ->
     @el.append """
@@ -110,7 +126,7 @@ class OptionsList extends QingModule
 
   highlightNextOption: ->
     if @highlighted
-      $nextOption = @highlighted.next('.option')
+      $nextOption = @highlighted.nextAll('.option:first')
     else
       $nextOption = @el.find('.option:first')
 
@@ -118,7 +134,7 @@ class OptionsList extends QingModule
 
   highlightPrevOption: ->
     if @highlighted
-      $prevOption = @highlighted.prev('.option')
+      $prevOption = @highlighted.prevAll('.option:first')
     else
       $prevOption = @el.find('.option:first')
 
