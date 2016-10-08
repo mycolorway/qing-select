@@ -15,7 +15,7 @@ class HtmlSelect extends QingModule
     options = []
     @el.find('option').each (i, optionEl) =>
       $option = $ optionEl
-      return unless value = $option.val()
+      return unless (value = $option.val()) && !$option.is(':disabled')
       data = $option.data()
       data.selected = true if $option.is(':selected')
       data.group = $option.parent('optgroup').prop('label') if $option.parent('optgroup').length

@@ -79,7 +79,7 @@ class OptionsList extends QingModule
   _append: (optionEl) ->
     $groupEl = null
     group = optionEl.data('option').data?.group
-    return @el.prepend(optionEl) unless group
+    return @el.append(optionEl) unless group
 
     if @_lastRenderGroup != group
       @_lastRenderGroup = group
