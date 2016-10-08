@@ -48,7 +48,7 @@ HtmlSelect = (function(superClass) {
       return function(i, optionEl) {
         var $option, data, value;
         $option = $(optionEl);
-        if (!(value = $option.val())) {
+        if (!((value = $option.val()) && !$option.is(':disabled'))) {
           return;
         }
         data = $option.data();
@@ -546,7 +546,7 @@ OptionsList = (function(superClass) {
     $groupEl = null;
     group = (ref = optionEl.data('option').data) != null ? ref.group : void 0;
     if (!group) {
-      return this.el.prepend(optionEl);
+      return this.el.append(optionEl);
     }
     if (this._lastRenderGroup !== group) {
       this._lastRenderGroup = group;
