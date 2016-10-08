@@ -49,9 +49,7 @@ class OptionsList extends QingModule
 
   _groupEl: (groupName) ->
     $groupEl = $("""
-      <div class="group-wrapper #{groupName.replace(' ').toLowerCase()}">
-        <div class="optgroup">#{groupName}</div>
-      </div>
+      <div class="optgroup #{groupName.replace(' ').toLowerCase()}">#{groupName}</div>
     """)
 
   _optionEl: (option) ->
@@ -81,9 +79,9 @@ class OptionsList extends QingModule
     group = optionEl.data('option').data?.group
     return @el.append(optionEl) unless group
     className = group.replace(' ').toLowerCase()
-    @el.append(@_groupEl(group)) unless @el.find(".group-wrapper.#{className}").length
-    $groupEl = @el.find(".group-wrapper.#{className}")
-    $groupEl.append optionEl
+    @el.append(@_groupEl(group)) unless @el.find(".optgroup.#{className}").length
+    $groupEl = @el.find(".optgroup.#{className}")
+    $groupEl.after optionEl
 
   _renderEmpty: ->
     @el.append """
@@ -125,12 +123,7 @@ class OptionsList extends QingModule
 
   highlightNextOption: ->
     if @highlighted
-      $nextOption = @highlighted.next('.option')
-      unless $nextOption.length
-        $nextOption = @highlighted
-          .closest('.group-wrapper')
-          .next('.group-wrapper')
-          .find('.option:first')
+      $nextOption = @highlighted.nextAll('.option:first')
     else
       $nextOption = @el.find('.option:first')
 
@@ -138,12 +131,7 @@ class OptionsList extends QingModule
 
   highlightPrevOption: ->
     if @highlighted
-      $prevOption = @highlighted.prev('.option')
-      unless $prevOption.length
-        $prevOption = @highlighted
-          .closest('.group-wrapper')
-          .prev('.group-wrapper')
-          .find('.option:last')
+      $prevOption = @highlighted.prevAll('.option:first')
     else
       $prevOption = @el.find('.option:first')
 

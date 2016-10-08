@@ -520,7 +520,7 @@ OptionsList = (function(superClass) {
 
   OptionsList.prototype._groupEl = function(groupName) {
     var $groupEl;
-    return $groupEl = $("<div class=\"group-wrapper " + (groupName.replace(' ').toLowerCase()) + "\">\n  <div class=\"optgroup\">" + groupName + "</div>\n</div>");
+    return $groupEl = $("<div class=\"optgroup " + (groupName.replace(' ').toLowerCase()) + "\">" + groupName + "</div>");
   };
 
   OptionsList.prototype._optionEl = function(option) {
@@ -548,11 +548,11 @@ OptionsList = (function(superClass) {
       return this.el.append(optionEl);
     }
     className = group.replace(' ').toLowerCase();
-    if (!this.el.find(".group-wrapper." + className).length) {
+    if (!this.el.find(".optgroup." + className).length) {
       this.el.append(this._groupEl(group));
     }
-    $groupEl = this.el.find(".group-wrapper." + className);
-    return $groupEl.append(optionEl);
+    $groupEl = this.el.find(".optgroup." + className);
+    return $groupEl.after(optionEl);
   };
 
   OptionsList.prototype._renderEmpty = function() {
@@ -604,10 +604,7 @@ OptionsList = (function(superClass) {
   OptionsList.prototype.highlightNextOption = function() {
     var $nextOption;
     if (this.highlighted) {
-      $nextOption = this.highlighted.next('.option');
-      if (!$nextOption.length) {
-        $nextOption = this.highlighted.closest('.group-wrapper').next('.group-wrapper').find('.option:first');
-      }
+      $nextOption = this.highlighted.nextAll('.option:first');
     } else {
       $nextOption = this.el.find('.option:first');
     }
@@ -619,10 +616,7 @@ OptionsList = (function(superClass) {
   OptionsList.prototype.highlightPrevOption = function() {
     var $prevOption;
     if (this.highlighted) {
-      $prevOption = this.highlighted.prev('.option');
-      if (!$prevOption.length) {
-        $prevOption = this.highlighted.closest('.group-wrapper').prev('.group-wrapper').find('.option:last');
-      }
+      $prevOption = this.highlighted.prevAll('.option:first');
     } else {
       $prevOption = this.el.find('.option:first');
     }
