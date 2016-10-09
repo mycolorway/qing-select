@@ -1252,8 +1252,11 @@ QingSelect = (function(superClass) {
     return this.unselectOption(this.resultBox.selected);
   };
 
-  QingSelect.prototype.selectOption = function(option) {
+  QingSelect.prototype.selectOption = function(option, quiet) {
     var oldOption;
+    if (quiet == null) {
+      quiet = false;
+    }
     if (!(option instanceof Option)) {
       option = this.dataProvider.getOption(option);
     }
@@ -1271,11 +1274,14 @@ QingSelect = (function(superClass) {
       this.resultBox.setSelected(option);
     }
     this.htmlSelect.selectOption(option);
-    this._afterSelectionChange();
+    this._afterSelectionChange(quiet);
     return this;
   };
 
-  QingSelect.prototype.unselectOption = function(option) {
+  QingSelect.prototype.unselectOption = function(option, quiet) {
+    if (quiet == null) {
+      quiet = false;
+    }
     if (!(option instanceof Option)) {
       option = this.dataProvider.getOption(option);
     }
@@ -1289,15 +1295,20 @@ QingSelect = (function(superClass) {
       this.resultBox.setSelected(false);
     }
     this.htmlSelect.unselectOption(option);
-    this._afterSelectionChange();
+    this._afterSelectionChange(quiet);
     return this;
   };
 
-  QingSelect.prototype._afterSelectionChange = function() {
+  QingSelect.prototype._afterSelectionChange = function(quiet) {
+    if (quiet == null) {
+      quiet = false;
+    }
     this._setActive(false);
     this.dataProvider.setOptions(this.htmlSelect.getOptions());
     this.dataProvider.filter('');
-    return this.trigger('change', [this.resultBox.selected]);
+    if (!quiet) {
+      return this.trigger('change', [this.resultBox.selected]);
+    }
   };
 
   QingSelect.prototype.destroy = function() {

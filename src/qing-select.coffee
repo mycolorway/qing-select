@@ -184,7 +184,7 @@ class QingSelect extends QingModule
     return unless @resultBox.selected
     @unselectOption @resultBox.selected
 
-  selectOption: (option) ->
+  selectOption: (option, quiet = false) ->
     unless option instanceof Option
       option = @dataProvider.getOption option
     return unless option
@@ -199,10 +199,10 @@ class QingSelect extends QingModule
       @resultBox.setSelected option
 
     @htmlSelect.selectOption option
-    @_afterSelectionChange()
+    @_afterSelectionChange quiet
     @
 
-  unselectOption: (option) ->
+  unselectOption: (option, quiet = false) ->
     unless option instanceof Option
       option = @dataProvider.getOption option
     return unless option
@@ -214,14 +214,14 @@ class QingSelect extends QingModule
       @resultBox.setSelected false
 
     @htmlSelect.unselectOption option
-    @_afterSelectionChange()
+    @_afterSelectionChange quiet
     @
 
-  _afterSelectionChange: ->
+  _afterSelectionChange: (quiet = false) ->
     @_setActive false
     @dataProvider.setOptions @htmlSelect.getOptions()
     @dataProvider.filter ''
-    @trigger 'change', [@resultBox.selected]
+    @trigger('change', [@resultBox.selected]) unless quiet
 
   destroy: ->
     @el.insertBefore @wrapper
