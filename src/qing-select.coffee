@@ -180,10 +180,6 @@ class QingSelect extends QingModule
     left: resultBoxPosition.left
     minWidth: resultBoxWidth
 
-  clear: ->
-    return unless @resultBox.selected
-    @unselectOption @resultBox.selected
-
   selectOption: (option, quiet = false) ->
     unless option instanceof Option
       option = @dataProvider.getOption option
@@ -214,6 +210,17 @@ class QingSelect extends QingModule
       @resultBox.setSelected false
 
     @htmlSelect.unselectOption option
+    @_afterSelectionChange quiet
+    @
+
+  clear: (quiet = false) ->
+    if @multiple
+      return unless @resultBox.selected
+      @unselectOption @resultBox.selected, true
+    else
+      return unless @resultBox.selected.length > 0
+      @unselectOption(option, true) for option in @resultBox.selected
+
     @_afterSelectionChange quiet
     @
 

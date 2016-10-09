@@ -1245,13 +1245,6 @@ QingSelect = (function(superClass) {
     };
   };
 
-  QingSelect.prototype.clear = function() {
-    if (!this.resultBox.selected) {
-      return;
-    }
-    return this.unselectOption(this.resultBox.selected);
-  };
-
   QingSelect.prototype.selectOption = function(option, quiet) {
     var oldOption;
     if (quiet == null) {
@@ -1295,6 +1288,30 @@ QingSelect = (function(superClass) {
       this.resultBox.setSelected(false);
     }
     this.htmlSelect.unselectOption(option);
+    this._afterSelectionChange(quiet);
+    return this;
+  };
+
+  QingSelect.prototype.clear = function(quiet) {
+    var j, len, option, ref;
+    if (quiet == null) {
+      quiet = false;
+    }
+    if (this.multiple) {
+      if (!this.resultBox.selected) {
+        return;
+      }
+      this.unselectOption(this.resultBox.selected, true);
+    } else {
+      if (!(this.resultBox.selected.length > 0)) {
+        return;
+      }
+      ref = this.resultBox.selected;
+      for (j = 0, len = ref.length; j < len; j++) {
+        option = ref[j];
+        this.unselectOption(option, true);
+      }
+    }
     this._afterSelectionChange(quiet);
     return this;
   };
