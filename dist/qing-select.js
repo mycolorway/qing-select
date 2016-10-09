@@ -1298,11 +1298,6 @@ QingSelect = (function(superClass) {
       quiet = false;
     }
     if (this.multiple) {
-      if (!this.resultBox.selected) {
-        return;
-      }
-      this.unselectOption(this.resultBox.selected, true);
-    } else {
       if (!(this.resultBox.selected.length > 0)) {
         return;
       }
@@ -1311,6 +1306,11 @@ QingSelect = (function(superClass) {
         option = ref[j];
         this.unselectOption(option, true);
       }
+    } else {
+      if (!this.resultBox.selected) {
+        return;
+      }
+      this.unselectOption(this.resultBox.selected, true);
     }
     this._afterSelectionChange(quiet);
     return this;

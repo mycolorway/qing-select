@@ -215,11 +215,11 @@ class QingSelect extends QingModule
 
   clear: (quiet = false) ->
     if @multiple
-      return unless @resultBox.selected
-      @unselectOption @resultBox.selected, true
-    else
       return unless @resultBox.selected.length > 0
       @unselectOption(option, true) for option in @resultBox.selected
+    else
+      return unless @resultBox.selected
+      @unselectOption @resultBox.selected, true
 
     @_afterSelectionChange quiet
     @
