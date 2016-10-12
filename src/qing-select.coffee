@@ -47,7 +47,7 @@ class QingSelect extends QingModule
     @_bind()
 
     if $.isFunction(@opts.renderer)
-      @opts.renderer.call @, @wrapper
+      @opts.renderer.call @, @wrapper, @
 
     # generate default options list
     @dataProvider.filter ''

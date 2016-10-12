@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-10-9
+ * Date: 2016-10-13
  */
 .qing-select {
   display: inline-block;
@@ -75,9 +75,9 @@
       align-items: center;
       align-content: center;
       flex: 0 0 auto;
-      padding: 0 8px;
+      padding: 0 12px;
       margin: 0 5px 5px 0;
-      height: 32px;
+      height: 40px;
       line-height: normal;
       background: #f6f6f6;
       border-radius: 2px;
@@ -88,7 +88,7 @@
       .qing-select .multiple-result-box .selected-option .icon-remove,
       .qing-select .multiple-result-box .link-add .icon-remove {
         font-style: normal;
-        margin: 0 0 0 5px;
+        margin: 0 0 0 8px;
         color: #9b9b9b; }
       .qing-select .multiple-result-box .selected-option:hover,
       .qing-select .multiple-result-box .link-add:hover {
@@ -104,7 +104,7 @@
       .qing-select .multiple-result-box .link-add .icon-add {
         font-style: normal;
         font-size: 16px;
-        margin: 0 2px 0 0; }
+        margin: 0 4px 0 0; }
 
 .qing-select-popover {
   display: none;
@@ -162,7 +162,7 @@
       .qing-select-popover .options-list .option .left,
       .qing-select-popover .options-list .option .right {
         flex: 1 0 auto;
-        padding: 0 10px; }
+        padding: 0 15px; }
       .qing-select-popover .options-list .option .right {
         text-align: right; }
       .qing-select-popover .options-list .option .name {
@@ -181,7 +181,7 @@
       padding: 0 10px;
       text-align: center; }
     .qing-select-popover .options-list .optgroup {
-      background: #F6F6F6;
+      background: #efefef;
       padding-left: 15px;
       line-height: 30px;
       color: #9B9B9B;
