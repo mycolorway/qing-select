@@ -5,6 +5,7 @@ class SearchBox extends QingModule
     wrapper: null
     placeholder: ''
     hidden: false
+    renderer: null
 
   _setOptions: (opts) ->
     super
@@ -17,6 +18,9 @@ class SearchBox extends QingModule
     @_inputDelay = 200
     @_render()
     @_bind()
+
+    if $.isFunction(@opts.renderer)
+      @opts.renderer.call @, @wrapper, @
 
   _render: ->
     @el = $("""

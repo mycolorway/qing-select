@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-10-13
+ * Date: 2016-10-19
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -914,7 +914,8 @@ SearchBox = (function(superClass) {
   SearchBox.opts = {
     wrapper: null,
     placeholder: '',
-    hidden: false
+    hidden: false,
+    renderer: null
   };
 
   SearchBox.prototype._setOptions = function(opts) {
@@ -929,7 +930,10 @@ SearchBox = (function(superClass) {
     }
     this._inputDelay = 200;
     this._render();
-    return this._bind();
+    this._bind();
+    if ($.isFunction(this.opts.renderer)) {
+      return this.opts.renderer.call(this, this.wrapper, this);
+    }
   };
 
   SearchBox.prototype._render = function() {
