@@ -55,6 +55,7 @@ class DataProvider extends QingModule
     null
 
   getOption: (value) ->
+    value = value.toString()
     result = @options.filter (option, i) =>
       option.value == value
     if result.length > 0 then result[0] else null

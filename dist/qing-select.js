@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-10-19
+ * Date: 2016-10-22
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -215,6 +215,7 @@ DataProvider = (function(superClass) {
 
   DataProvider.prototype.getOption = function(value) {
     var result;
+    value = value.toString();
     result = this.options.filter((function(_this) {
       return function(option, i) {
         return option.value === value;
