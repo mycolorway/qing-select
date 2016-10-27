@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-10-22
+ * Date: 2016-10-27
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -1062,7 +1062,6 @@ QingSelect = (function(superClass) {
     if (!(this.el.length > 0)) {
       throw new Error('QingSelect: option el is required');
     }
-    this.opts = $.extend({}, QingSelect.opts, this.opts);
     this.locales = $.extend({}, QingSelect.locales, this.opts.locales);
     this.active = false;
     this._render();
@@ -1298,24 +1297,19 @@ QingSelect = (function(superClass) {
   };
 
   QingSelect.prototype.clear = function(quiet) {
-    var j, len, option, ref;
+    var j, len, option, options;
     if (quiet == null) {
       quiet = false;
     }
-    if (this.multiple) {
-      if (!(this.resultBox.selected.length > 0)) {
-        return;
-      }
-      ref = this.resultBox.selected;
-      for (j = 0, len = ref.length; j < len; j++) {
-        option = ref[j];
-        this.unselectOption(option, true);
-      }
-    } else {
-      if (!this.resultBox.selected) {
-        return;
-      }
-      this.unselectOption(this.resultBox.selected, true);
+    options = this.multiple ? this.resultBox.selected : this.resultBox.selected ? [this.resultBox.selected] : [];
+    if (!(options.length > 0)) {
+      return;
+    }
+    for (j = 0, len = options.length; j < len; j++) {
+      option = options[j];
+      option.selected = false;
+      this.resultBox.removeSelected(option);
+      this.htmlSelect.unselectOption(option);
     }
     this._afterSelectionChange(quiet);
     return this;

@@ -39,7 +39,6 @@ class QingSelect extends QingModule
     unless @el.length > 0
       throw new Error 'QingSelect: option el is required'
 
-    @opts = $.extend {}, QingSelect.opts, @opts
     @locales = $.extend {}, QingSelect.locales, @opts.locales
     @active = false
     @_render()
@@ -214,12 +213,18 @@ class QingSelect extends QingModule
     @
 
   clear: (quiet = false) ->
-    if @multiple
-      return unless @resultBox.selected.length > 0
-      @unselectOption(option, true) for option in @resultBox.selected
+    options = if @multiple
+      @resultBox.selected
+    else if @resultBox.selected
+      [@resultBox.selected]
     else
-      return unless @resultBox.selected
-      @unselectOption @resultBox.selected, true
+      []
+
+    return unless options.length > 0
+    for option in options
+      option.selected = false
+      @resultBox.removeSelected option
+      @htmlSelect.unselectOption option
 
     @_afterSelectionChange quiet
     @
