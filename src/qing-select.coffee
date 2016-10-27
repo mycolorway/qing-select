@@ -213,17 +213,16 @@ class QingSelect extends QingModule
     @
 
   clear: (quiet = false) ->
-    options = if @multiple
-      @resultBox.selected
-    else if @resultBox.selected
-      [@resultBox.selected]
+    if @multiple
+      return unless @resultBox.selected.length > 0
+      for option in @resultBox.selected
+        option.selected = false
+        @resultBox.removeSelected option
+        @htmlSelect.unselectOption option
     else
-      []
-
-    return unless options.length > 0
-    for option in options
+      return unless (option = @resultBox.selected)
       option.selected = false
-      @resultBox.removeSelected option
+      @resultBox.setSelected false
       @htmlSelect.unselectOption option
 
     @_afterSelectionChange quiet

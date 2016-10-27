@@ -1297,18 +1297,27 @@ QingSelect = (function(superClass) {
   };
 
   QingSelect.prototype.clear = function(quiet) {
-    var j, len, option, options;
+    var j, len, option, ref;
     if (quiet == null) {
       quiet = false;
     }
-    options = this.multiple ? this.resultBox.selected : this.resultBox.selected ? [this.resultBox.selected] : [];
-    if (!(options.length > 0)) {
-      return;
-    }
-    for (j = 0, len = options.length; j < len; j++) {
-      option = options[j];
+    if (this.multiple) {
+      if (!(this.resultBox.selected.length > 0)) {
+        return;
+      }
+      ref = this.resultBox.selected;
+      for (j = 0, len = ref.length; j < len; j++) {
+        option = ref[j];
+        option.selected = false;
+        this.resultBox.removeSelected(option);
+        this.htmlSelect.unselectOption(option);
+      }
+    } else {
+      if (!(option = this.resultBox.selected)) {
+        return;
+      }
       option.selected = false;
-      this.resultBox.removeSelected(option);
+      this.resultBox.setSelected(false);
       this.htmlSelect.unselectOption(option);
     }
     this._afterSelectionChange(quiet);
