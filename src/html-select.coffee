@@ -49,6 +49,6 @@ class HtmlSelect extends QingModule
 
   getBlankOption: ->
     $blankOption = @el.find('option:not([value]), option[value=""]')
-    if $blankOption.length > 0 then $blankOption else false
+    if $blankOption.length > 0 then $blankOption else null
 
 module.exports = HtmlSelect
