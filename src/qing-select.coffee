@@ -39,6 +39,9 @@ class QingSelect extends QingModule
     unless @el.length > 0
       throw new Error 'QingSelect: option el is required'
 
+    if (initialized = @el.data('qingSelect'))
+      return initialized
+
     @locales = $.extend {}, QingSelect.locales, @opts.locales
     @active = false
     @_render()

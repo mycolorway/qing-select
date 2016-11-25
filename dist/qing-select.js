@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-11-7
+ * Date: 2016-11-25
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -1058,9 +1058,13 @@ QingSelect = (function(superClass) {
   };
 
   QingSelect.prototype._init = function() {
+    var initialized;
     this.el = $(this.opts.el);
     if (!(this.el.length > 0)) {
       throw new Error('QingSelect: option el is required');
+    }
+    if ((initialized = this.el.data('qingSelect'))) {
+      return initialized;
     }
     this.locales = $.extend({}, QingSelect.locales, this.opts.locales);
     this.active = false;
