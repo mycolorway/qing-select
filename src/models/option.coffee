@@ -18,12 +18,7 @@ class Option
     @selected = @data.selected || false
 
   match: (value) ->
-    try
-      re = new RegExp("(^|\\s)" + value, "i")
-    catch e
-      re = new RegExp("", "i")
-
     filterKey = @data.searchKey || @name
-    re.test filterKey
+    filterKey.indexOf(value) > -1
 
 module.exports = Option

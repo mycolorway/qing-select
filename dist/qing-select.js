@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-11-25
+ * Date: 2016-12-6
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -274,15 +274,9 @@ Option = (function() {
   }
 
   Option.prototype.match = function(value) {
-    var e, filterKey, re;
-    try {
-      re = new RegExp("(^|\\s)" + value, "i");
-    } catch (error) {
-      e = error;
-      re = new RegExp("", "i");
-    }
+    var filterKey;
     filterKey = this.data.searchKey || this.name;
-    return re.test(filterKey);
+    return filterKey.indexOf(value) > -1;
   };
 
   return Option;
