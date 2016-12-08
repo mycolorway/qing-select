@@ -19,6 +19,6 @@ class Option
 
   match: (value) ->
     filterKey = @data.searchKey || @name
-    filterKey.indexOf(value) > -1
+    String(filterKey).indexOf(value) > -1
 
 module.exports = Option
