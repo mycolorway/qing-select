@@ -9,7 +9,7 @@ class Popover extends QingModule
     locales: null
     maxListSize: 0
     searchableSize: 8
-    opitonRenderer: null
+    optionRenderer: null
 
   _setOptions: (opts) ->
     super

@@ -5,7 +5,7 @@ class OptionsList extends QingModule
     wrapper: null
     locales: null
     options: null
-    opitonRenderer: null
+    optionRenderer: null
     totalOptionSize: null
     maxListSize: 0
 
@@ -71,8 +71,8 @@ class OptionsList extends QingModule
 
     @setHighlighted($optionEl) if option.selected
 
-    if $.isFunction @opts.opitonRenderer
-      @opts.opitonRenderer.call(@, $optionEl, option)
+    if $.isFunction @opts.optionRenderer
+      @opts.optionRenderer.call(@, $optionEl, option)
 
     $optionEl
 

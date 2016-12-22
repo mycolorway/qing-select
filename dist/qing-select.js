@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-12-8
+ * Date: 2016-12-22
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -457,7 +457,7 @@ OptionsList = (function(superClass) {
     wrapper: null,
     locales: null,
     options: null,
-    opitonRenderer: null,
+    optionRenderer: null,
     totalOptionSize: null,
     maxListSize: 0
   };
@@ -534,8 +534,8 @@ OptionsList = (function(superClass) {
     if (option.selected) {
       this.setHighlighted($optionEl);
     }
-    if ($.isFunction(this.opts.opitonRenderer)) {
-      this.opts.opitonRenderer.call(this, $optionEl, option);
+    if ($.isFunction(this.opts.optionRenderer)) {
+      this.opts.optionRenderer.call(this, $optionEl, option);
     }
     return $optionEl;
   };
@@ -652,7 +652,7 @@ Popover = (function(superClass) {
     locales: null,
     maxListSize: 0,
     searchableSize: 8,
-    opitonRenderer: null
+    optionRenderer: null
   };
 
   Popover.prototype._setOptions = function(opts) {
@@ -1028,7 +1028,7 @@ QingSelect = (function(superClass) {
   QingSelect.opts = {
     el: null,
     renderer: null,
-    opitonRenderer: null,
+    optionRenderer: null,
     remote: false,
     totalOptionSize: 0,
     maxListSize: 20,

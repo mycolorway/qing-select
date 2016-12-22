@@ -14,7 +14,7 @@ class QingSelect extends QingModule
   @opts:
     el: null
     renderer: null
-    opitonRenderer: null
+    optionRenderer: null
     remote: false
     totalOptionSize: 0
     maxListSize: 20
