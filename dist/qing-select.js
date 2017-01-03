@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2016-12-22
+ * Date: 2017-01-3
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -389,7 +389,7 @@ MultipleResultBox = (function(superClass) {
       }
       return;
     }
-    $("<a href=\"javascript:;\" class=\"selected-option\"\n  data-value=\"" + option.value + "\">\n  <span class=\"name\">" + option.name + "</span>\n  <i class=\"icon-remove\">&#10005;</i>\n</a>").data('option', option).insertBefore(this.linkAdd);
+    $("<a href=\"javascript:;\" class=\"selected-option\"\n  data-value=\"" + option.value + "\">\n  <span class=\"name\">" + (new Option(option.name).innerHTML) + "</span>\n  <i class=\"icon-remove\">&#10005;</i>\n</a>").data('option', option).insertBefore(this.linkAdd);
     this.selected.push(option);
     return this;
   };

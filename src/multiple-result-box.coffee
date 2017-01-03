@@ -71,7 +71,7 @@ class MultipleResultBox extends QingModule
     $("""
       <a href="javascript:;" class="selected-option"
         data-value="#{option.value}">
-        <span class="name">#{option.name}</span>
+        <span class="name">#{new Option(option.name).innerHTML}</span>
         <i class="icon-remove">&#10005;</i>
       </a>
     """)
