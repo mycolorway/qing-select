@@ -6,6 +6,7 @@ class MultipleResultBox extends QingModule
     placeholder: ''
     selected: false
     locales: null
+    disabled: false
 
   _setOptions: (opts) ->
     super
@@ -22,6 +23,7 @@ class MultipleResultBox extends QingModule
     @_bind()
 
     @addSelected(@opts.selected) if @opts.selected
+    @setDisabled @opts.disabled
 
   _render: ->
     @el = $("""

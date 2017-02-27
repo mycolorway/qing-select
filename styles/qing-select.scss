@@ -84,6 +84,19 @@
         display: none;
       }
     }
+
+    &.disabled {
+      cursor: not-allowed;
+      background: #f6f6f6;
+      border-color: #e6e6e6;
+      color: #ccc;
+
+      .link-clear,
+      .link-clear:hover {
+        color: #ccc;
+        cursor: not-allowed;
+      }
+    }
   } // end of .result-box
 
   .multiple-result-box {
@@ -137,6 +150,25 @@
         font-style: normal;
         font-size: 16px;
         margin: 0 4px 0 0;
+      }
+    }
+
+    &.disabled {
+      .link-add,
+      .selected-option {
+        cursor: not-allowed;
+        color: #ccc;
+
+        &:hover {
+          background-color: #f6f6f6;
+        }
+
+        .icon-add,
+        .icon-remove,
+        .icon-remove:hover {
+          cursor: not-allowed;
+          color: #ccc;
+        }
       }
     }
   }
