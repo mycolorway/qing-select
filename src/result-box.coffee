@@ -6,6 +6,7 @@ class ResultBox extends QingModule
     placeholder: ''
     selected: false
     clearable: true
+    disabled: false
 
   _setOptions: (opts) ->
     super
@@ -21,6 +22,7 @@ class ResultBox extends QingModule
     @_bind()
 
     @setSelected @opts.selected
+    @setDisabled @opts.disabled
 
   _render: ->
     @el = $("""

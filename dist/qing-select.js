@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2017-01-3
+ * Date: 2017-02-26
  */
 ;(function(root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -301,7 +301,8 @@ MultipleResultBox = (function(superClass) {
     wrapper: null,
     placeholder: '',
     selected: false,
-    locales: null
+    locales: null,
+    disabled: false
   };
 
   MultipleResultBox.prototype._setOptions = function(opts) {
@@ -320,8 +321,9 @@ MultipleResultBox = (function(superClass) {
     this._render();
     this._bind();
     if (this.opts.selected) {
-      return this.addSelected(this.opts.selected);
+      this.addSelected(this.opts.selected);
     }
+    return this.setDisabled(this.opts.disabled);
   };
 
   MultipleResultBox.prototype._render = function() {
@@ -783,7 +785,8 @@ ResultBox = (function(superClass) {
     wrapper: null,
     placeholder: '',
     selected: false,
-    clearable: true
+    clearable: true,
+    disabled: false
   };
 
   ResultBox.prototype._setOptions = function(opts) {
@@ -800,7 +803,8 @@ ResultBox = (function(superClass) {
     this.disabled = false;
     this._render();
     this._bind();
-    return this.setSelected(this.opts.selected);
+    this.setSelected(this.opts.selected);
+    return this.setDisabled(this.opts.disabled);
   };
 
   ResultBox.prototype._render = function() {
@@ -1095,12 +1099,14 @@ QingSelect = (function(superClass) {
       wrapper: this.wrapper,
       placeholder: this._placeholder(),
       selected: selected,
-      locales: this.locales
+      locales: this.locales,
+      disabled: this.el.is(':disabled')
     }) : new ResultBox({
       wrapper: this.wrapper,
       placeholder: this._placeholder(),
       selected: selected.length > 0 ? selected[0] : false,
-      clearable: !!this.htmlSelect.getBlankOption()
+      clearable: !!this.htmlSelect.getBlankOption(),
+      disabled: this.el.is(':disabled')
     });
     return this.popover = new Popover({
       wrapper: this.wrapper,

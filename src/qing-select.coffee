@@ -77,12 +77,14 @@ class QingSelect extends QingModule
         placeholder: @_placeholder()
         selected: selected
         locales: @locales
+        disabled: @el.is(':disabled')
     else
       new ResultBox
         wrapper: @wrapper
         placeholder: @_placeholder()
         selected: if selected.length > 0 then selected[0] else false
         clearable: !!@htmlSelect.getBlankOption()
+        disabled: @el.is(':disabled')
 
     @popover = new Popover
       wrapper: @wrapper

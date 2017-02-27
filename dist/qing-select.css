@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://mycolorway.github.io/qing-select/license.html
  *
- * Date: 2017-01-3
+ * Date: 2017-02-26
  */
 .qing-select {
   display: inline-block;
@@ -64,6 +64,15 @@
       display: block; }
     .qing-select .result-box.empty .result, .qing-select .result-box.empty .link-clear {
       display: none; }
+    .qing-select .result-box.disabled {
+      cursor: not-allowed;
+      background: #f6f6f6;
+      border-color: #e6e6e6;
+      color: #ccc; }
+      .qing-select .result-box.disabled .link-clear,
+      .qing-select .result-box.disabled .link-clear:hover {
+        color: #ccc;
+        cursor: not-allowed; }
   .qing-select .multiple-result-box {
     display: flex;
     align-items: flex-start;
@@ -105,6 +114,21 @@
         font-style: normal;
         font-size: 16px;
         margin: 0 4px 0 0; }
+    .qing-select .multiple-result-box.disabled .link-add,
+    .qing-select .multiple-result-box.disabled .selected-option {
+      cursor: not-allowed;
+      color: #ccc; }
+      .qing-select .multiple-result-box.disabled .link-add:hover,
+      .qing-select .multiple-result-box.disabled .selected-option:hover {
+        background-color: #f6f6f6; }
+      .qing-select .multiple-result-box.disabled .link-add .icon-add,
+      .qing-select .multiple-result-box.disabled .link-add .icon-remove,
+      .qing-select .multiple-result-box.disabled .link-add .icon-remove:hover,
+      .qing-select .multiple-result-box.disabled .selected-option .icon-add,
+      .qing-select .multiple-result-box.disabled .selected-option .icon-remove,
+      .qing-select .multiple-result-box.disabled .selected-option .icon-remove:hover {
+        cursor: not-allowed;
+        color: #ccc; }
 
 .qing-select-popover {
   display: none;
